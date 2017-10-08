@@ -124,22 +124,21 @@ void loop()
 
 
 void printValues() {
-    Serial.print("Temperature = ");
-    Serial.print(bme.readTemperature());
-    Serial.println(" *C");
+    BTLEserial.print("Temperature = ",);
+    BTLEserial.print(bme.readTemperature());
+    BTLEserial.println(" *C");
 
-    Serial.print("Pressure = ");
+    BTLEserial.print("Pressure = ");
+    BTLEserial.print(bme.readPressure() / 100.0F);
+    BTLEserial.println(" hPa");
 
-    Serial.print(bme.readPressure() / 100.0F);
-    Serial.println(" hPa");
+    BTLEserial.print("Approx. Altitude = ");
+    BTLEserial.print(bme.readAltitude(SEALEVELPRESSURE_HPA));
+    BTLEserial.println(" m");
 
-    Serial.print("Approx. Altitude = ");
-    Serial.print(bme.readAltitude(SEALEVELPRESSURE_HPA));
-    Serial.println(" m");
-
-    Serial.print("Humidity = ");
-    Serial.print(bme.readHumidity());
-    Serial.println(" %");
+    BTLEserial.print("Humidity = ");
+    BTLEserial.print(bme.readHumidity());
+    BTLEserial.println(" %");
 
     Serial.println();
 }
