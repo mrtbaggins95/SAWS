@@ -43,7 +43,7 @@ bool status;
     }
     
     Serial.println("-- Default Test --");
-    delayTime = 1000;
+    delayTime = 100;
 
     Serial.println();
   // BTLEserial.setDeviceName("NEWNAME"); /* 7 characters max! */
@@ -124,7 +124,7 @@ void loop()
 
 
 void printValues() {
-    BTLEserial.print("Temperature = ",);
+    BTLEserial.print("Temperature = ");
     BTLEserial.print(bme.readTemperature());
     BTLEserial.println(" *C");
 
@@ -134,7 +134,7 @@ void printValues() {
 
     BTLEserial.print("Approx. Altitude = ");
     BTLEserial.print(bme.readAltitude(SEALEVELPRESSURE_HPA));
-    BTLEserial.println(" m");
+    BTLEserial.println(" m above sea level");
 
     BTLEserial.print("Humidity = ");
     BTLEserial.print(bme.readHumidity());
