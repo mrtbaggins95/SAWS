@@ -1,0 +1,5 @@
+Keep the functions in separate folders so we can make progress on them as modules. 
+
+Functionize the code so that any parent program can call them at will. 
+
+When the programs are functional, we will include them into a single STA_servo folder as one program.

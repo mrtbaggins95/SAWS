@@ -1,5 +1,3 @@
-
-
 #include <Servo.h>
 Servo Azimuth;
 Servo Altitude;
@@ -9,7 +7,6 @@ Servo Altitude;
 #define photoC A2
 #define photoD A3
 
-unsigned long lastT = 0;
 float AzHome = 90;
 float AlHome = 0;
 int positionMemory[//numDegrees];
@@ -53,6 +50,5 @@ void loop()
   //go to as a Azimuth.write(positionMemory[degIndex]);
   //panel has gone to strongest sun, initiate homeSun();
 }
-
 
 
