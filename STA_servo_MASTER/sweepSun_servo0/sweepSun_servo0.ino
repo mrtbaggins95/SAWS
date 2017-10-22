@@ -1,6 +1,6 @@
 #include <Servo.h>
 Servo AzServo;
-Servo ElServo;
+Servo AlServo;
 
 #define SensA A0
 #define SensB A1
@@ -21,7 +21,7 @@ void sweepSun()
 {
   Serial.begin(9600);
   AzServo.attach(9);
-  ElServo.attach(10);
+  AlServo.attach(10);
 
   //variables for loop 1
   int sunData[181];
