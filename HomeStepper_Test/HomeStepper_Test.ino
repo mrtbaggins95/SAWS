@@ -20,7 +20,8 @@ void setup() {
 
 void loop() {}
 
-void HomeStepper() {
+void HomeStepper() 
+{
 #define STBY 8 // Pull this pin low to completely cut off power to the stepper
 #define STEPS 200 // Number of steps per rotation, this is specific to our motor
 #define HomeSwitch 2
@@ -29,7 +30,8 @@ void HomeStepper() {
   pinMode(STBY, OUTPUT);
   digitalWrite(STBY, HIGH);
   pinMode(HomeSwitch, INPUT_PULLUP); //sets the HomeSwitch pin(2) as an input that uses internall pull ups
-  while (Home == false) { //This while loop continue to step the motor, while the swith is open(high)
+  while (Home == false) 
+  { //This while loop continue to step the motor, while the swith is open(high)
     stepper.step(1); // steps the motor once
   }
   digitalWrite(STBY, LOW);

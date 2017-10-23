@@ -21,7 +21,7 @@ void loop()
 
 void trackSun()
 {
-  float baseStep = 99;  //later change this to the step amount obtained from sweepSun();
+  float baseStep = 100;  //later change this to the step amount obtained from sweepSun();
   unsigned long lastT = 0;
   float AzIerror = 0; // integral error
   float AlIerror = 0; 
@@ -31,7 +31,8 @@ void trackSun()
   float ki = 0.015; // integral gain
   float kd = 0.08; // derivative gain
 
-  //define scope view of PID
+  // THIS WAS OUR PERIPHERAL OPTION
+  /*define scope view of PID
   int photoSight[] = {baseStep - 5,baseStep - 4,baseStep - 3,baseStep - 2,baseStep - 1,baseStep,baseStep + 1,baseStep + 2,baseStep + 3,baseStep + 4,baseStep + 5,}
   if(baseStep - 5 < 0 || baseStep + 5 > 359)
   {
@@ -42,39 +43,46 @@ void trackSun()
   int RightAvg = 0.5 * (analogRead(SensB) + analogRead(SensC));
   float AzPerror = 0 - (LeftAvg - RightAvg);
 
-  
-  /*
      A|B
      D|C
   */
 
 
-  while ((AzPerror > 2) | (AzPerror < -2)) 
+ //Azimuth Correction 
+ while ((AzPerror > 2) | (AzPerror < -2)) 
   {
+    //compare averages
     LeftAvg = 0.5 * (analogRead(SensA) + analogRead(SensD));
     RightAvg = 0.5 * (analogRead(SensB) + analogRead(SensC));
+    
+    //timestamp
     unsigned long now = millis(); // current time
     float Tchange = double(now - lastT);  // time since last time through loop
+
+    //PID formula, determine a number of steps to adjust
     AzPerror = 0 - (LeftAvg - RightAvg);
     AzIerror = (AzPerror) + AzIerror;
     float AzDerror = (AzPerror - LastAzPerror) / Tchange;
-    float AzPIDOUT = kp * AzPerror + ki * AzIerror + kd * AzDerror;
     LastAzPerror = AzPerror;
     lastT = now;
-    float AzSteps = baseStep + (AzPIDOUT) / 8;
+    float AzDeltaSteps = (kp * AzPerror + ki * AzIerror + kd * AzDerror) / 8;
+
+    //extremity check
+    float AzStepCheck = baseStep + AzDeltaSteps;
     
-    if (AzSteps > 180 ) 
+    if (AzStepsCheck > 200) 
     {
-      AzSteps = 180;
+      AzDeltaSteps = (AzStepCheck - 200) - baseStep;
     }
     
-    if (AzSteps < 0)
+    if (AzStepCheck < 0)
     {
-      AzSteps = 0;
+      AzDeltaSteps = 200 + AzStepCheck;
     }
-    
-    AzServo.write(AzSteps);
-    baseStep = AzSteps;
+  
+    //normal function  
+    AzStepper.step(AzDeltaSteps);
+    baseStep = baseStep + AzDeltaSteps;
     delay(40);
   }
 
@@ -98,9 +106,9 @@ void trackSun()
     lastT = now;
     float AlSteps = baseStep + (AlPIDOUT) / 8;
     
-    if (AlSteps > 180 ) 
+    if (AlSteps > 90 ) 
     {
-      AlSteps= 180;
+      AlSteps= 90;
     }
    
     if (AlSteps < 0) 
