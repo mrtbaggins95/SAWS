@@ -1,4 +1,5 @@
 #include <Stepper.h>
+#include "sunFunctions.h"
 //#include user defined functions.
 
 /* These might not be necessary
@@ -10,7 +11,8 @@ Stepper AlStepper = Stepper(200,3,4);
 #define SensA A3
 */
 
-int globalStep = 0;
+int globalStepAz = 0;
+int globalStepAl = 0;
 int decision = 1;
 
 void setup() {
