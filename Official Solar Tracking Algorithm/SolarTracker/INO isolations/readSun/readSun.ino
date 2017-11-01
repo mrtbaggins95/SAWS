@@ -35,7 +35,7 @@ int readSun()
   int ValB = analogRead(photoB);
   int ValC = analogRead(photoC);
   int ValD = analogRead(photoD);
-  int sunRead = ValA + ValB + ValC + ValD
+  int sunRead = ValA + ValB + ValC + ValD;
   int decision = 1;
   int threshold = 500; //determined by holding a hand at overhead, shading the photoresistor.
   int rightSide = ValA + ValD;

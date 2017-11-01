@@ -49,7 +49,7 @@ int sunFunctions::readSun()
 
 
 
-int sunFunctions::sweepSun()
+int sunFunctions::sweepSun() // this function always creates a new baseStepAz
 {
   Serial.begin(9600);
 
@@ -95,8 +95,8 @@ int sunFunctions::sweepSun()
 
   // After finding the index of the max sun, turn to it
   AzStepper.step(positionData[sunMaxIndex] - 180); // use negative complementary amount of steps to turn back to the high Sun position.
-  baseStepAz = positionData[sunMaxIndex] // save amount we stepped away from initial home 0 steps. Altitude baseStepAl remains at zero and will be set by trackSunAltitude();
-  return baseStepAz
+  int baseStepAz = positionData[sunMaxIndex]; // save amount we stepped away from initial home 0 steps. Altitude baseStepAl remains at zero and will be set by trackSunAltitude()
+  return baseStepAz;
 }
 
 
@@ -124,7 +124,7 @@ Home = true; // update the home variable to exit the while loop.
 
 
 
-int sunFunctions::trackSunAzimuth(baseStepAz)
+int sunFunctions::trackSunAzimuth(int baseStepAz)
 {
   float _baseStepAz = baseStepAz;  //later change this to the step amount obtained from sweepSun();
   unsigned long lastT = 0;
@@ -133,6 +133,10 @@ int sunFunctions::trackSunAzimuth(baseStepAz)
   float kp = 0.38; // proportional gain
   float ki = 0.015; // integral gain
   float kd = 0.08; // derivative gain
+
+  int LeftAvg = 0.5 * (analogRead(SensA) + analogRead(SensD));
+  int RightAvg = 0.5 * (analogRead(SensB) + analogRead(SensC));
+  float AzPerror = 0 - (LeftAvg - RightAvg);
 
  //Azimuth Correction 
  while ((AzPerror > 2) | (AzPerror < -2)) 
@@ -156,7 +160,7 @@ int sunFunctions::trackSunAzimuth(baseStepAz)
     //extremity check
     float AzStepCheck = baseStepAz + AzDeltaSteps;
     
-    if (AzStepsCheck > 200) 
+    if (AzStepCheck > 200) 
     {
       AzDeltaSteps = (AzStepCheck - 200) - baseStepAz;
     }
@@ -169,14 +173,14 @@ int sunFunctions::trackSunAzimuth(baseStepAz)
     //normal function  
     AzStepper.step(AzDeltaSteps);
     baseStepAz = baseStepAz + AzDeltaSteps;
-    return baseStepAz
+    return baseStepAz;
     delay(40);
   }
 }
 
 
 
-int sunFunctions::trackSunAltitude(baseStepAl)
+int sunFunctions::trackSunAltitude(int baseStepAl)
 {
   float _baseStepAl = baseStepAl;  //later change this to the step amount obtained from sweepSun();
   unsigned long lastT = 0;
@@ -215,7 +219,7 @@ int sunFunctions::trackSunAltitude(baseStepAl)
       AlSteps = 0;
     }
     
-    AlServo.write(AlSteps);
+    AlStepper.step(AlSteps);
     baseStepAl = AlSteps;
     delay(40);
   }

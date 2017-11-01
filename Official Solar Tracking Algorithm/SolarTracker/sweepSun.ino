@@ -10,7 +10,7 @@ Stepper AlStepper = Stepper(200,5,6,7,8);
 
 void setup() 
 {
-  sweepSun();
+  Serial.begin(9600);
 }
 
 void loop() 
@@ -18,7 +18,7 @@ void loop()
 
 }
 
-int sweepSun()
+int sweepSun() // this function always creates a new baseStepAz
 {
   Serial.begin(9600);
 
@@ -64,7 +64,7 @@ int sweepSun()
 
   // After finding the index of the max sun, turn to it
   AzStepper.step(positionData[sunMaxIndex] - 180); // use negative complementary amount of steps to turn back to the high Sun position.
-  baseStepAz = positionData[sunMaxIndex] // save amount we stepped away from initial home 0 steps. Altitude baseStepAl remains at zero and will be set by trackSunAltitude();
-  return baseStepAz
+  int baseStepAz = positionData[sunMaxIndex]; // save amount we stepped away from initial home 0 steps. Altitude baseStepAl remains at zero and will be set by trackSunAltitude()
+  return baseStepAz;
 }
 
