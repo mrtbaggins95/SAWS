@@ -10,7 +10,8 @@ sunFunctions::sunFunctions(int RTC,int baseStepAz, int baseStepAl)
   #define SensA A0
   #define SensB A1
   #define SensC A2
-  #define SensD A3 
+  #define SensD A3
+  
   _RTC = RTC;
   _baseStepAz = baseStepAz;
   _baseStepAl = baseStepAl;
@@ -104,30 +105,34 @@ int sunFunctions::sweepSun() // this function always creates a new baseStepAz
 
 void sunFunctions::homeSun() 
 {
-#define boolean Home = false;
-#define STBY 8 // Pull this pin low to completely cut off power to the stepper
-#define STEPS 200 // Number of steps per rotation, this is specific to our motor
-#define HomeSwitch 2
+  volatile boolean Home = false;
+  #define STBY 8 // Pull this pin low to completely cut off power to the stepper
+  #define STEPS 200 // Number of steps per rotation, this is specific to our motor
+  #define HomeSwitch 2
   Stepper stepper(STEPS, 4, 5, 6, 7); // creates a stepper object called stepper, using pins 4-7
   stepper.setSpeed(100); // sets the speed of the motor in rpm
   pinMode(STBY, OUTPUT);
   digitalWrite(STBY, HIGH);
   pinMode(HomeSwitch, INPUT_PULLUP); //sets the HomeSwitch pin(2) as an input that uses internall pull ups
   while (Home == false) 
-  { //This while loop continue to step the motor, while the swith is open(high)
-    stepper.step(1); // steps the motor once
-  }
+    { //This while loop continue to step the motor, while the swith is open(high)
+      stepper.step(1); // steps the motor once
+    }
   digitalWrite(STBY, LOW);
 }
 
-void pin_ISR() { // this is the interrupt service routine. Basically the function that happens when interrupt occurs
-Home = true; // update the home variable to exit the while loop.
+boolean sunFunctions::pin_ISR(boolean Home) 
+{ // this is the interrupt service routine. Basically the function that happens when interrupt occurs
+ volatile boolean crap = Home;
+ crap = true; // update the home variable to exit the while loop.
+ return crap;
 }
 
 
 
 int sunFunctions::trackSunAzimuth(int baseStepAz)
 {
+  Stepper AzStepper = Stepper(200,1,2,3,4);
   float _baseStepAz = baseStepAz;  //later change this to the step amount obtained from sweepSun();
   unsigned long lastT = 0;
   float AzIerror = 0; // integral error
@@ -184,6 +189,7 @@ int sunFunctions::trackSunAzimuth(int baseStepAz)
 
 int sunFunctions::trackSunAltitude(int baseStepAl)
 {
+  Stepper AlStepper = Stepper(200,5,6,7,8);
   float _baseStepAl = baseStepAl;  //later change this to the step amount obtained from sweepSun();
   unsigned long lastT = 0;
   float AlIerror = 0; 
@@ -227,12 +233,6 @@ int sunFunctions::trackSunAltitude(int baseStepAl)
   }
 }
 
-
-
-void sunFunctions::standBy()
-{
-  //detach_stepper_motors_please
-}
 
 
 

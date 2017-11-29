@@ -9,12 +9,12 @@ class sunFunctions
 {
   public:
   sunFunctions(int RTC, int baseStepAz, int baseStepAl);
-  void homeIn();
   int readSun();
   int sweepSun();
-  int trackSunAzimuth();
-  int trackSunAltitude();
+  int trackSunAzimuth(int baseStepAz);
+  int trackSunAltitude(int baseStepAl);
   void homeSun();  
+  boolean pin_ISR(boolean Home);
   
   private:
   int _RTC;
