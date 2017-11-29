@@ -25,7 +25,7 @@ int sunFunctions::readSun()
   int ValB = analogRead(SensB);
   int ValC = analogRead(SensC);
   int ValD = analogRead(SensD);
-  int sunRead = ValA + ValB + ValC + ValD
+  int sunRead = ValA + ValB + ValC + ValD;
   int decision = 1;
   int threshold = 500; //determined by holding a hand at overhead, shading the photoresistor.
   int rightSide = ValA + ValD;
@@ -52,6 +52,7 @@ int sunFunctions::readSun()
 int sunFunctions::sweepSun() // this function always creates a new baseStepAz
 {
   Serial.begin(9600);
+   Stepper AzStepper = Stepper(200,1,2,3,4);
 
     //variables for loop 1
   int sunData[181];
@@ -103,6 +104,7 @@ int sunFunctions::sweepSun() // this function always creates a new baseStepAz
 
 void sunFunctions::homeSun() 
 {
+#define boolean Home = false;
 #define STBY 8 // Pull this pin low to completely cut off power to the stepper
 #define STEPS 200 // Number of steps per rotation, this is specific to our motor
 #define HomeSwitch 2
