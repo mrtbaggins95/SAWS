@@ -33,6 +33,9 @@
 #include <BLEPeripheral.h>
 #include "BLESerial.h"
 #include <SPI.h>
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BME280.h>
 
 // You should get Auth Token in the Blynk App.
 // Go to the Project Settings (nut icon).
@@ -43,9 +46,53 @@ char auth[] = "1d1d97dc0a624d29bde05e4d0aeffc5b";
 #define BLE_RDY   2
 #define BLE_RST   9
 
+
+#define BME_SCK 22
+#define BME_MISO 24
+#define BME_MOSI 26
+#define BME_CS 28
+
+#define SEALEVELPRESSURE_HPA (1013.25)
+
 // create ble serial instance, see pinouts above
 BLESerial SerialBLE(BLE_REQ, BLE_RDY, BLE_RST);
+Adafruit_BME280 bme(BME_CS, BME_MOSI, BME_MISO, BME_SCK); // software SPI
 
+BlynkTimer timer;
+
+void myTimerEvent()
+{
+  // You can send any value at any time.
+  // Please don't send more that 10 values per second.
+  Blynk.virtualWrite(V1, millis() / 1000);
+}
+
+
+BLYNK_WRITE(V1)
+{
+  int pinValue1 = param.asInt();
+  Serial.print("Temperature = ");
+  Serial.print(bme.readTemperature());
+  Serial.println(" *C");
+    Blynk.virtualWrite(1, millis() / 1000);
+  
+}
+BLYNK_WRITE(V2)
+{
+  int pinValue2 = param.asInt();
+   Serial.print("Pressure = ");
+   Serial.print(bme.readPressure() / 100.0F);
+   Serial.println(" hPa");
+}
+BLYNK_WRITE(V3)
+{
+  int pinValue3 = param.asInt();
+  Serial.print("Humidity = ");
+  Serial.print(bme.readHumidity());
+  Serial.println(" %");
+
+  
+}
 void setup()
 {
   // Debug console
@@ -59,6 +106,7 @@ void setup()
   Blynk.begin(SerialBLE, auth);
 
   Serial.println("Waiting for connections...");
+  timer.setInterval(1000L, myTimerEvent);
 }
 
 void loop()
@@ -67,6 +115,7 @@ void loop()
 
   if (SerialBLE) {    // If BLE is connected...
     Blynk.run();
+    timer.run();
   }
 }
 
