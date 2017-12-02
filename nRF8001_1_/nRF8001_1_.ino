@@ -25,7 +25,7 @@
  *************************************************************/
 
 /* Comment this out to disable prints and save space */
-#define BLYNK_PRINT Serial0
+#define BLYNK_PRINT Serial
 
 #define BLYNK_USE_DIRECT_CONNECT
 
