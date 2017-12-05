@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Hub</title>
+<link href="../../css/ea.css" rel="stylesheet" type="text/css" />
+<script>
+function initPage(src) {	
+	if(parent==this&&(this.location+"").indexOf('EARoot')!=-1)
+		document.location=(this.location+"").substring(0,(this.location+"").indexOf('EARoot'))+"index"+(this.location+"").substring((this.location+"").lastIndexOf('.'))+"?goto="+((this.location+"").substring((this.location+"").indexOf('EARoot')+7,(this.location+"").lastIndexOf('.')).replace(/\//g,':').replace(/EA/g,""));
+	else
+		parent.initPage(src);
+}
+
+function nameClassifier(name, separator)
+{
+  var str = name;
+  var classifierName;
+  var node = document.getElementById('name_classifier');
+  if(node != null)
+  {
+    classifierName = node.innerHTML;
+  }
+  if(classifierName != "")
+  {
+   str += separator + classifierName;
+  }
+  
+  return str;
+}
+</script>
+</head>
+<body onload="initPage(this);" class="Content">
+<div class="PageBody">
+	
+<img src="EA14.png" usemap="#EA14" border="0" />
+
+<MAP NAME="EA14">
+<area shape="rect" coords="555,64,665,108" href="../EA3/EA104.htm" target="_self">
+<area shape="rect" coords="370,162,405,177" href="EA85.htm" target="_self">
+<area shape="rect" coords="369,87,404,102" href="EA84.htm" target="_self">
+<area shape="rect" coords="309,94,444,169" href="EA42.htm" target="_self">
+<area shape="rect" coords="662,222,697,237" href="EA82.htm" target="_self">
+<area shape="rect" coords="586,257,621,272" href="EA83.htm" target="_self">
+<area shape="rect" coords="545,189,680,264" href="EA45.htm" target="_self">
+<area shape="rect" coords="572,430,607,445" href="EA80.htm" target="_self">
+<area shape="rect" coords="639,445,674,460" href="EA81.htm" target="_self">
+<area shape="rect" coords="639,481,674,496" href="EA79.htm" target="_self">
+<area shape="rect" coords="522,437,657,512" href="EA47.htm" target="_self">
+<area shape="rect" coords="370,454,405,469" href="EA77.htm" target="_self">
+<area shape="rect" coords="373,379,408,394" href="EA78.htm" target="_self">
+<area shape="rect" coords="314,386,449,461" href="EA46.htm" target="_self">
+<area shape="rect" coords="104,305,139,320" href="EA69.htm" target="_self">
+<area shape="rect" coords="181,305,216,320" href="EA71.htm" target="_self">
+<area shape="rect" coords="210,265,245,280" href="EA70.htm" target="_self">
+<area shape="rect" coords="142,230,177,245" href="EA72.htm" target="_self">
+<area shape="rect" coords="92,237,227,312" href="EA43.htm" target="_self">
+<area shape="rect" coords="106,378,141,393" href="EA73.htm" target="_self">
+<area shape="rect" coords="207,409,242,424" href="EA75.htm" target="_self">
+<area shape="rect" coords="183,453,218,468" href="EA76.htm" target="_self">
+<area shape="rect" coords="105,453,140,468" href="EA74.htm" target="_self">
+<area shape="rect" coords="90,385,225,460" href="EA44.htm" target="_self">
+<area shape="rect" coords="793,223,828,238" href="EA51.htm" target="_self">
+<area shape="rect" coords="183,612,218,627" href="EA50.htm" target="_self">
+<area shape="rect" coords="100,612,135,627" href="EA49.htm" target="_self">
+<area shape="rect" coords="793,448,828,463" href="EA48.htm" target="_self">
+<area shape="rect" coords="793,487,828,502" href="EA40.htm" target="_self">
+<area shape="rect" coords="142,12,177,27" href="EA52.htm" target="_self">
+<area shape="rect" coords="10,19,810,619" href="EA25.htm" target="_self">
+</MAP>
+
+	<div class="ObjectTitle">Hub : Activity diagram</div>
+	<table border="0" cellpadding="0" cellspacing="0" class="ObjectDetails">
+		<tr>
+			<td width="15%" class="ObjectDetailsTopic">Created:</td>
+			<td width="85%" class="ObjectDetailsValue">11/7/2017 12:00:00 AM</td>
+		</tr>
+		<tr>
+			<td width="15%" class="ObjectDetailsTopic">Modified:</td>
+			<td width="85%" class="ObjectDetailsValue">11/14/2017 10:42:39 PM</td>
+		</tr>
+		<tr style="padding-top: 10px;">
+			<td width="15%" class="ObjectDetailsTopic"><img src="../../images/plus03.gif" align="absmiddle" id="proj" onclick="parent.toggleData(this.id)" />Project:</td>
+			<td width="85%" class="ObjectDetailsValue"></td>			
+		</tr>
+		<tr id="proj00" style="display: none;">
+			<td width="15%" class="ObjectDetailsTopic" style="padding-left: 18px;">Author:</td>
+			<td width="85%" class="ObjectDetailsValue">sakib.karim</td>
+		</tr>
+		<tr id="proj01" style="display: none;">
+			<td width="15%" class="ObjectDetailsTopic" style="padding-left: 18px;">Version:</td>
+			<td width="85%" class="ObjectDetailsValue">1.0</td>
+		</tr>
+		<tr>
+			<td width="15%" class="ObjectDetailsTopic"><img src="../../images/plus03.gif" align="absmiddle" id="adv" onclick="parent.toggleData(this.id)" />Advanced:</td>
+			<td width="85%" class="ObjectDetailsValue"></td>			
+		</tr>
+		<tr id="adv00" style="display: none;">
+			<td width="15%" class="ObjectDetailsTopic" style="padding-left: 18px;">ID:</td>
+			<td width="85%" class="ObjectDetailsValue">{0A5894F9-3DEC-4b5a-87AC-4697B705CCA1}</td>
+		</tr>
+	</table>
+	
+</div>
+ 
+</body>
+</html>
