@@ -1,0 +1,1 @@
+https://learn.adafruit.com/creating-accurate-footprints-in-eagle/importing-the-bitmap-into-eagle

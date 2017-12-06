@@ -3,15 +3,15 @@
 #include "sunFunctions.h"
 #include <Stepper.h>
 
-sunFunctions::sunFunctions(int RTC,int baseStepAz, int baseStepAl)
+sunFunctions::sunFunctions(int RTC, int baseStepAz, int baseStepAl)
 {
-  Stepper AzStepper = Stepper(200,1,2,3,4);
-  Stepper AlStepper = Stepper(200,5,6,7,8);
-  #define SensA A0
-  #define SensB A1
-  #define SensC A2
-  #define SensD A3
-  
+  Stepper AzStepper = Stepper(200, 1, 2, 3, 4);
+  Stepper AlStepper = Stepper(200, 5, 6, 7, 8);
+#define SensA A0
+#define SensB A1
+#define SensC A2
+#define SensD A3
+
   _RTC = RTC;
   _baseStepAz = baseStepAz;
   _baseStepAl = baseStepAl;
@@ -31,17 +31,17 @@ int sunFunctions::readSun()
   int threshold = 500; //determined by holding a hand at overhead, shading the photoresistor.
   int rightSide = ValA + ValD;
   int leftSide = ValB + ValC;
-  
-  if(sunRead < 1800)
+
+  if (sunRead < 1800)
   {
     return decision = 1; //light sensor is collectively low, go to sweepSun();
   }
 
-  if(sunRead > 1800 && abs(rightSide - leftSide) > 100)
+  if (sunRead > 1800 && abs(rightSide - leftSide) > 100)
   {
     return decision = 2; //light sensor is above threshold but the left != the right
   }
-  
+
   else
   {
     return decision = 3; //reading is OK, just standBy --> unused condition in the main program, standBy is default.
@@ -53,9 +53,9 @@ int sunFunctions::readSun()
 int sunFunctions::sweepSun() // this function always creates a new baseStepAz
 {
   Serial.begin(9600);
-   Stepper AzStepper = Stepper(200,1,2,3,4);
+  Stepper AzStepper(200, 4, 5, 6, 7);
 
-    //variables for loop 1
+  //variables for loop 1
   int sunData[181];
   int positionData[181];
   int SenseAvg = 0;
@@ -103,36 +103,36 @@ int sunFunctions::sweepSun() // this function always creates a new baseStepAz
 
 
 
-void sunFunctions::homeSun() 
+void sunFunctions::homeSun()
 {
   volatile boolean Home = false;
-  #define STBY 8 // Pull this pin low to completely cut off power to the stepper
-  #define STEPS 200 // Number of steps per rotation, this is specific to our motor
-  #define HomeSwitch 2
+#define STBY 8 // Pull this pin low to completely cut off power to the stepper
+#define STEPS 200 // Number of steps per rotation, this is specific to our motor
+#define HomeSwitch 2
   Stepper stepper(STEPS, 4, 5, 6, 7); // creates a stepper object called stepper, using pins 4-7
   stepper.setSpeed(100); // sets the speed of the motor in rpm
   pinMode(STBY, OUTPUT);
   digitalWrite(STBY, HIGH);
   pinMode(HomeSwitch, INPUT_PULLUP); //sets the HomeSwitch pin(2) as an input that uses internall pull ups
-  while (Home == false) 
-    { //This while loop continue to step the motor, while the swith is open(high)
-      stepper.step(1); // steps the motor once
-    }
+  while (Home == false)
+  { //This while loop continue to step the motor, while the swith is open(high)
+    stepper.step(1); // steps the motor once
+  }
   digitalWrite(STBY, LOW);
 }
 
-boolean sunFunctions::pin_ISR(boolean Home) 
+boolean sunFunctions::pin_ISR(boolean Home)
 { // this is the interrupt service routine. Basically the function that happens when interrupt occurs
- volatile boolean crap = Home;
- crap = true; // update the home variable to exit the while loop.
- return crap;
+  volatile boolean crap = Home;
+  crap = true; // update the home variable to exit the while loop.
+  return crap;
 }
 
 
 
 int sunFunctions::trackSunAzimuth(int baseStepAz)
 {
-  Stepper AzStepper = Stepper(200,1,2,3,4);
+  Stepper AzStepper(200, 1, 2, 3, 4);
   float _baseStepAz = baseStepAz;  //later change this to the step amount obtained from sweepSun();
   unsigned long lastT = 0;
   float AzIerror = 0; // integral error
@@ -145,13 +145,13 @@ int sunFunctions::trackSunAzimuth(int baseStepAz)
   int RightAvg = 0.5 * (analogRead(SensB) + analogRead(SensC));
   float AzPerror = 0 - (LeftAvg - RightAvg);
 
- //Azimuth Correction 
- while ((AzPerror > 2) | (AzPerror < -2)) 
+  //Azimuth Correction
+  while ((AzPerror > 2) | (AzPerror < -2))
   {
     //compare averages
     LeftAvg = 0.5 * (analogRead(SensA) + analogRead(SensD));
     RightAvg = 0.5 * (analogRead(SensB) + analogRead(SensC));
-    
+
     //timestamp
     unsigned long now = millis(); // current time
     float Tchange = double(now - lastT);  // time since last time through loop
@@ -166,18 +166,18 @@ int sunFunctions::trackSunAzimuth(int baseStepAz)
 
     //extremity check
     float AzStepCheck = baseStepAz + AzDeltaSteps;
-    
-    if (AzStepCheck > 200) 
+
+    if (AzStepCheck > 200)
     {
       AzDeltaSteps = (AzStepCheck - 200) - baseStepAz;
     }
-    
+
     if (AzStepCheck < 0)
     {
       AzDeltaSteps = 200 + AzStepCheck;
     }
-  
-    //normal function  
+
+    //normal function
     AzStepper.step(AzDeltaSteps);
     baseStepAz = baseStepAz + AzDeltaSteps;
     return baseStepAz;
@@ -189,10 +189,10 @@ int sunFunctions::trackSunAzimuth(int baseStepAz)
 
 int sunFunctions::trackSunAltitude(int baseStepAl)
 {
-  Stepper AlStepper = Stepper(200,5,6,7,8);
+  Stepper AlStepper(200, 34, 38, 46, 48 ); // Ain2 Ain1 Bin1 Bin2
   float _baseStepAl = baseStepAl;  //later change this to the step amount obtained from sweepSun();
   unsigned long lastT = 0;
-  float AlIerror = 0; 
+  float AlIerror = 0;
   float LastAlPerror = 0; // last saved proportional error
   float kp = 0.38; // proportional gain
   float ki = 0.015; // integral gain
@@ -202,8 +202,8 @@ int sunFunctions::trackSunAltitude(int baseStepAl)
   int TopAvg = 0.5 * (analogRead(SensA) + analogRead(SensB));
   int BotAvg = 0.5 * (analogRead(SensC) + analogRead(SensD));
   float AlPerror = 0 - (TopAvg - BotAvg);
-  
-  while ((AlPerror > 2) | (AlPerror < -2)) 
+
+  while ((AlPerror > 2) | (AlPerror < -2))
   {
     TopAvg = 0.5 * (analogRead(SensA) + analogRead(SensB));
     BotAvg = 0.5 * (analogRead(SensC) + analogRead(SensD));
@@ -216,17 +216,17 @@ int sunFunctions::trackSunAltitude(int baseStepAl)
     LastAlPerror = AlPerror;
     lastT = now;
     float AlSteps = baseStepAl + (AlPIDOUT) / 8;
-    
-    if (AlSteps > 90 ) 
+
+    if (AlSteps > 90 )
     {
-      AlSteps= 90;
+      AlSteps = 90;
     }
-   
-    if (AlSteps < 0) 
+
+    if (AlSteps < 0)
     {
       AlSteps = 0;
     }
-    
+
     AlStepper.step(AlSteps);
     baseStepAl = AlSteps;
     delay(40);
