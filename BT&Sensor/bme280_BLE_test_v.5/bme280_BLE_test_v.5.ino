@@ -22,7 +22,8 @@ Adafruit_BLE_UART BTLEserial = Adafruit_BLE_UART(ADAFRUITBLE_REQ, ADAFRUITBLE_RD
 
 #define SEALEVELPRESSURE_HPA (1013.25)
 
-Adafruit_BME280 bme(BME_CS, BME_MOSI, BME_MISO, BME_SCK); // software SPI
+//Adafruit_BME280 bme(BME_CS, BME_MOSI, BME_MISO, BME_SCK); // software SPI
+Adafruit_BME280 bme(BME_CS); // hardware SPI
 
 unsigned long delayTime;
 /**************************************************************************/
