@@ -1,9 +1,9 @@
-//This is the source file for the sunFunctions Library
+//This is the source file for the solarTracker Library
 #include "Arduino.h"
-#include "sunFunctions.h"
+#include "solarTracker.h"
 #include <Stepper.h>
 
-sunFunctions::sunFunctions(int RTC, int baseStepAz, int baseStepAl)
+solarTracker::solarTracker(int RTC, int baseStepAz, int baseStepAl)
 {
   Stepper AzStepper = Stepper(200, 1, 2, 3, 4);
   Stepper AlStepper = Stepper(200, 5, 6, 7, 8);
@@ -19,7 +19,7 @@ sunFunctions::sunFunctions(int RTC, int baseStepAz, int baseStepAl)
 
 
 
-int sunFunctions::readSun()
+int solarTracker::readSun()
 {
   // define local variable: int option = 0 by default
   int ValA = analogRead(SensA);
@@ -50,7 +50,7 @@ int sunFunctions::readSun()
 
 
 
-int sunFunctions::sweepSun() // this function always creates a new baseStepAz
+int solarTracker::sweepSun() // this function always creates a new baseStepAz
 {
   Serial.begin(9600);
   Stepper AzStepper(200, 4, 5, 6, 7);
@@ -103,7 +103,7 @@ int sunFunctions::sweepSun() // this function always creates a new baseStepAz
 
 
 
-void sunFunctions::homeSun()
+void solarTracker::homeSun()
 {
   volatile boolean Home = false;
 #define STBY 8 // Pull this pin low to completely cut off power to the stepper
@@ -121,7 +121,7 @@ void sunFunctions::homeSun()
   digitalWrite(STBY, LOW);
 }
 
-boolean sunFunctions::pin_ISR(boolean Home)
+boolean solarTracker::pin_ISR(boolean Home)
 { // this is the interrupt service routine. Basically the function that happens when interrupt occurs
   volatile boolean crap = Home;
   crap = true; // update the home variable to exit the while loop.
@@ -130,7 +130,7 @@ boolean sunFunctions::pin_ISR(boolean Home)
 
 
 
-int sunFunctions::trackSunAzimuth(int baseStepAz)
+int solarTracker::trackSunAzimuth(int baseStepAz)
 {
   Stepper AzStepper(200, 1, 2, 3, 4);
   float _baseStepAz = baseStepAz;  //later change this to the step amount obtained from sweepSun();
@@ -187,7 +187,7 @@ int sunFunctions::trackSunAzimuth(int baseStepAz)
 
 
 
-int sunFunctions::trackSunAltitude(int baseStepAl)
+int solarTracker::trackSunAltitude(int baseStepAl)
 {
   Stepper AlStepper(200, 34, 38, 46, 48 ); // Ain2 Ain1 Bin1 Bin2
   float _baseStepAl = baseStepAl;  //later change this to the step amount obtained from sweepSun();

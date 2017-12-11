@@ -1,5 +1,5 @@
 #include <Stepper.h>
-#include "sunFunctions.h"
+#include "solarTracker.h"
 //#include user defined functions.
 
 /* These might not be necessary
@@ -15,9 +15,10 @@ int globalStepAz = 0;
 int globalStepAl = 0;
 int decision = 1;
 
-void setup() {
+void setup() 
+{
   // put your setup code here, to run once:
-
+  
 }
 
 void loop() 
