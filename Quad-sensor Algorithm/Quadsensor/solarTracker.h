@@ -1,14 +1,14 @@
-//This is the header file for sunFunctions library
+//This is the header file for solarTracker library
 
-#ifndef sunFunctions_h
-#define sunFunctions_h
+#ifndef solarTracker_h
+#define solarTracker_h
 #include <Stepper.h>
 #include "Arduino.h"
 
-class sunFunctions
+class solarTracker
 {
   public:
-  sunFunctions(int RTC, int baseStepAz, int baseStepAl);
+  solarTracker(int RTC, int baseStepAz, int baseStepAl);
   int readSun();
   int sweepSun();
   int trackSunAzimuth(int baseStepAz);
