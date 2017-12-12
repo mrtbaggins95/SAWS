@@ -38,6 +38,7 @@
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
+#include "Adafruit_VEML6070.h"
 
 
 
@@ -45,9 +46,9 @@
 
 // You should get Auth Token in the Blynk App.
 // Go to the Project Settings (nut icon).
-//char auth[] = "050355e469a949ff8c29f7aeff0d4e2e";
+char auth[] = "8963a3ec5af844e5b97898f6a0e01916";
 //char auth[] = "2b4d2aca7b4e4533b51e172d44aa30dc";
-char auth[] = "cc56e7bc08e046d4bc44e3c1906aa103";
+//char auth[] = "cc56e7bc08e046d4bc44e3c1906aa103";
 
 // define pins (varies per shield/board)
 #define BLE_REQ   23
@@ -69,6 +70,8 @@ BLESerial SerialBLE(BLE_REQ, BLE_RDY, BLE_RST);
 Adafruit_BME280 bme(BME_CS); // hardware SPI
 //Adafruit_BME280 bme(BME_CS, BME_MOSI, BME_MISO, BME_SCK); // software SPI
 
+Adafruit_VEML6070 uv = Adafruit_VEML6070();
+
 BlynkTimer timer;
 void setup()
 {
@@ -81,21 +84,51 @@ void setup()
   SerialBLE.begin();
   
   Blynk.begin(SerialBLE, auth);
+  uv.begin(VEML6070_1_T);
   bme.begin();
   timer.setInterval(1000L, sendSensor);
 
   Serial.println("Waiting for connections...");
 }
 
-
-void sendSensor()
+void sendBMEData()
 {
   float bmeTemperature = bme.readTemperature();
   float bmePressure = bme.readPressure()/100.0F;
   float bmeHumidity = bme.readHumidity();
-  Blynk.virtualWrite(V1,bmeTemperature);
-  Blynk.virtualWrite(V2,bmePressure);
-  Blynk.virtualWrite(V3,bmeHumidity);
+  //Blynk.virtualWrite(V1,bmeTemperature);
+  //Blynk.virtualWrite(V2,bmePressure);
+  Blynk.virtualWrite(V1,bmeHumidity);
+}
+String UVindex_val()
+{
+  uint16_t reading = uv.readUV();
+  if (reading >= 2055)
+  {
+    return "Extreme";
+  }
+  else if ( reading >= 1494)
+  {
+    return "Very High";
+  }
+  else if ( reading >= 1121)
+  {
+    return "High";
+  }
+  else if (reading >= 561)
+  {
+    return "Moderate";
+  }
+  else
+  {
+    return "Low";
+  }
+}
+void sendSensor()
+{
+  sendBMEData();
+  Blynk.virtualWrite(V7,UVindex_val());
+ 
 }
 
 void loop()
