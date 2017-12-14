@@ -8,7 +8,7 @@
 class solarTracker
 {
   public:
-  solarTracker(int RTC, int baseStepAz, int baseStepAl);
+  solarTracker(int baseStepAz, int baseStepAl);
   int readSun();
   int sweepSun();
   int trackSunAzimuth(int baseStepAz);
@@ -17,7 +17,6 @@ class solarTracker
   boolean pin_ISR(boolean Home);
   
   private:
-  int _RTC;
   int _baseStepAz;
   int _baseStepAl;
 };
