@@ -45,13 +45,14 @@
 
 // You should get Auth Token in the Blynk App.
 // Go to the Project Settings (nut icon).
-char auth[] = "1d1d97dc0a624d29bde05e4d0aeffc5b";
+//char auth[] = "050355e469a949ff8c29f7aeff0d4e2e";
 //char auth[] = "2b4d2aca7b4e4533b51e172d44aa30dc";
+char auth[] = "cc56e7bc08e046d4bc44e3c1906aa103";
 
 // define pins (varies per shield/board)
 #define BLE_REQ   23
-#define BLE_RDY   25
-#define BLE_RST   18
+#define BLE_RDY   18
+#define BLE_RST   25
 
 
 
@@ -59,13 +60,14 @@ char auth[] = "1d1d97dc0a624d29bde05e4d0aeffc5b";
 
 // create ble serial instance, see pinouts above
 BLESerial SerialBLE(BLE_REQ, BLE_RDY, BLE_RST);
-//Adafruit_BME280 bme(BME_CS); // hardware SPI
+
 
 #define BME_SCK 52
-#define BME_MISO 51
-#define BME_MOSI 50
+#define BME_MISO 50
+#define BME_MOSI 51
 #define BME_CS A12
-Adafruit_BME280 bme(BME_CS, BME_MOSI, BME_MISO, BME_SCK); // software SPI
+Adafruit_BME280 bme(BME_CS); // hardware SPI
+//Adafruit_BME280 bme(BME_CS, BME_MOSI, BME_MISO, BME_SCK); // software SPI
 
 BlynkTimer timer;
 void setup()
@@ -89,7 +91,11 @@ void setup()
 void sendSensor()
 {
   float bmeTemperature = bme.readTemperature();
-  Blynk.virtualWrite(V1, bmeTemperature);
+  float bmePressure = bme.readPressure()/100.0F;
+  float bmeHumidity = bme.readHumidity();
+  Blynk.virtualWrite(V1,bmeTemperature);
+  Blynk.virtualWrite(V2,bmePressure);
+  Blynk.virtualWrite(V3,bmeHumidity);
 }
 
 void loop()

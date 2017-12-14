@@ -96,9 +96,9 @@ void sendBMEData()
   float bmeTemperature = bme.readTemperature();
   float bmePressure = bme.readPressure()/100.0F;
   float bmeHumidity = bme.readHumidity();
-  //Blynk.virtualWrite(V1,bmeTemperature);
-  //Blynk.virtualWrite(V2,bmePressure);
-  Blynk.virtualWrite(V1,bmeHumidity);
+  Blynk.virtualWrite(V1,bmeTemperature);
+  Blynk.virtualWrite(V2,bmePressure);
+  Blynk.virtualWrite(V3,bmeHumidity);
 }
 String UVindex_val()
 {
@@ -127,7 +127,7 @@ String UVindex_val()
 void sendSensor()
 {
   sendBMEData();
-  Blynk.virtualWrite(V7,UVindex_val());
+  Blynk.virtualWrite(V4,UVindex_val());
  
 }
 
