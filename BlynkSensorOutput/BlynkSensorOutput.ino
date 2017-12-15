@@ -45,8 +45,6 @@
 
 
 
-
-
 //Auth token to connect to the mobile app
 char auth[] = "8963a3ec5af844e5b97898f6a0e01916";
 

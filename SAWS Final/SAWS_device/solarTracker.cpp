@@ -5,8 +5,8 @@
 
 solarTracker::solarTracker(int baseStepAz, int baseStepAl)
 {
-  Stepper AzStepper = Stepper(200, 1, 2, 3, 4);
-  Stepper AlStepper = Stepper(200, 5, 6, 7, 8);
+  Stepper AzStepper = Stepper(400, 1, 2, 3, 4);
+  Stepper AlStepper = Stepper(400, 5, 6, 7, 8);
   #define SensA A0
   #define SensB A1
   #define SensC A2
@@ -14,6 +14,7 @@ solarTracker::solarTracker(int baseStepAz, int baseStepAl)
 
   _baseStepAz = baseStepAz;
   _baseStepAl = baseStepAl;
+  volatile int Home = false;
 }
 
 
@@ -52,7 +53,7 @@ int solarTracker::readSun()
 int solarTracker::sweepSun() // this function always creates a new baseStepAz
 {
   Serial.begin(9600);
-  Stepper AzStepper(200, 4, 5, 6, 7);
+  Stepper AzStepper(400, 4, 5, 6, 7);
 
   //variables for loop 1
   int sunData[181];
@@ -100,38 +101,9 @@ int solarTracker::sweepSun() // this function always creates a new baseStepAz
   return _baseStepAz;
 }
 
-
-
-void solarTracker::homeSun()
-{
-  volatile boolean Home = false;
-#define STBY 8 // Pull this pin low to completely cut off power to the stepper
-#define STEPS 200 // Number of steps per rotation, this is specific to our motor
-#define HomeSwitch 2
-  Stepper stepper(STEPS, 4, 5, 6, 7); // creates a stepper object called stepper, using pins 4-7
-  stepper.setSpeed(100); // sets the speed of the motor in rpm
-  pinMode(STBY, OUTPUT);
-  digitalWrite(STBY, HIGH);
-  pinMode(HomeSwitch, INPUT_PULLUP); //sets the HomeSwitch pin(2) as an input that uses internall pull ups
-  while (Home == false)
-  { //This while loop continue to step the motor, while the swith is open(high)
-    stepper.step(1); // steps the motor once
-  }
-  digitalWrite(STBY, LOW);
-}
-
-boolean solarTracker::pin_ISR(boolean Home)
-{ // this is the interrupt service routine. Basically the function that happens when interrupt occurs
-  volatile boolean crap = Home;
-  crap = true; // update the home variable to exit the while loop.
-  return crap;
-}
-
-
-
 int solarTracker::trackSunAzimuth()
 {
-  Stepper AzStepper(200, 1, 2, 3, 4);
+  Stepper AzStepper(400, 1, 2, 3, 4);
   unsigned long lastT = 0;
   float AzIerror = 0; // integral error
   float LastAzPerror = 0; // last saved proportional error
@@ -165,14 +137,14 @@ int solarTracker::trackSunAzimuth()
     //extremity check
     float AzStepCheck = _baseStepAz + AzDeltaSteps;
 
-    if (AzStepCheck > 200)
+    if (AzStepCheck > 400)
     {
-      AzDeltaSteps = (AzStepCheck - 200) - _baseStepAz;
+      AzDeltaSteps = (AzStepCheck - 400) - _baseStepAz;
     }
 
     if (AzStepCheck < 0)
     {
-      AzDeltaSteps = 200 + AzStepCheck;
+      AzDeltaSteps = 400 + AzStepCheck;
     }
 
     //normal function
@@ -187,7 +159,7 @@ int solarTracker::trackSunAzimuth()
 
 int solarTracker::trackSunAltitude()
 {
-  Stepper AlStepper(200, 34, 38, 46, 48 ); // Ain2 Ain1 Bin1 Bin2
+  Stepper AlStepper(400, 34, 38, 46, 48 ); // Ain2 Ain1 Bin1 Bin2
   unsigned long lastT = 0;
   float AlIerror = 0;
   float LastAlPerror = 0; // last saved proportional error

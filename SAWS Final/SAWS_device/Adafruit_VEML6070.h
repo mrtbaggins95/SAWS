@@ -26,14 +26,12 @@
 #define VEML6070_ADDR_L 0x38
 
 // three different integration times
-typedef enum veml6070_integrationtime 
-{
+typedef enum veml6070_integrationtime {
   VEML6070_HALF_T,
   VEML6070_1_T,
   VEML6070_2_T,
   VEML6070_4_T,
-}
-veml6070_integrationtime_t;
+} veml6070_integrationtime_t;
 
 
 class Adafruit_VEML6070 {
