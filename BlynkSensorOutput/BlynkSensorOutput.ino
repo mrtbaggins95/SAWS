@@ -27,10 +27,13 @@
  *************************************************************/
 
 /* Comment this out to disable prints and save space */
+
+//Initialize Blynk Bluetooth interface. You do not BLYNK_DEBUG, but it is there to see if data is transmitting,
 #define BLYNK_PRINT Serial
 #define BLYNK_DEBUG 
 #define BLYNK_USE_DIRECT_CONNECT
 
+//These include files are necessary. The UV include file and the BLESerial include are local, use the Add file method to include the library.
 #include <BlynkSimpleSerialBLE.h>
 #include <BLEPeripheral.h>
 #include "BLESerial.h"
@@ -44,25 +47,23 @@
 
 
 
-// You should get Auth Token in the Blynk App.
-// Go to the Project Settings (nut icon).
+//Auth token to connect to the mobile app
 char auth[] = "8963a3ec5af844e5b97898f6a0e01916";
-//char auth[] = "2b4d2aca7b4e4533b51e172d44aa30dc";
-//char auth[] = "cc56e7bc08e046d4bc44e3c1906aa103";
 
-// define pins (varies per shield/board)
+
+//define pins for BLE for Blynk
 #define BLE_REQ   23
 #define BLE_RDY   18
 #define BLE_RST   25
 
 
-
+// define Pressure constant
 #define SEALEVELPRESSURE_HPA (1013.25)
 
-// create ble serial instance, see pinouts above
+// create ble serial instance, see pinouts above, comes from the BLESerial library
 BLESerial SerialBLE(BLE_REQ, BLE_RDY, BLE_RST);
 
-
+//Define BME pins using Hardware SPI
 #define BME_SCK 52
 #define BME_MISO 50
 #define BME_MOSI 51
@@ -70,36 +71,47 @@ BLESerial SerialBLE(BLE_REQ, BLE_RDY, BLE_RST);
 Adafruit_BME280 bme(BME_CS); // hardware SPI
 //Adafruit_BME280 bme(BME_CS, BME_MOSI, BME_MISO, BME_SCK); // software SPI
 
+//Intitialize UV 
 Adafruit_VEML6070 uv = Adafruit_VEML6070();
 
+//Initialize Blynk timer to poll data at a defined frequency based on the app
 BlynkTimer timer;
 void setup()
 {
   // Debug console
   Serial.begin(9600);
 
+  //Setup the BLE to advertise as "Blynk"
   SerialBLE.setLocalName("Blynk");
   SerialBLE.setDeviceName("Blynk");
   SerialBLE.setAppearance(0x0080);
   SerialBLE.begin();
-  
+
+  //Intialize Blynk,UV,and BME to start data transfer
   Blynk.begin(SerialBLE, auth);
   uv.begin(VEML6070_1_T);
   bme.begin();
+  //Sets timer interval. sendSensor refers to a function where UV data and BME data are sent
   timer.setInterval(1000L, sendSensor);
 
   Serial.println("Waiting for connections...");
 }
 
+//Will send Temperature, Pressure, and Humidity Data
 void sendBMEData()
 {
+  //The the bme.readExample() reads a desired measurement
   float bmeTemperature = bme.readTemperature();
   float bmePressure = bme.readPressure()/100.0F;
   float bmeHumidity = bme.readHumidity();
+  //This writes the data to a virtual pin. 
+  //Virtual Pins in Blynk act similar to regular pins, 
+  //by wrtiing data to virtual pins we are able to read data on the app.
   Blynk.virtualWrite(V1,bmeTemperature);
   Blynk.virtualWrite(V2,bmePressure);
   Blynk.virtualWrite(V3,bmeHumidity);
 }
+//The function will return a string based on the values the UV sensor is reading.
 String UVindex_val()
 {
   uint16_t reading = uv.readUV();
@@ -124,6 +136,7 @@ String UVindex_val()
     return "Low";
   }
 }
+//Sends Sensor data
 void sendSensor()
 {
   sendBMEData();
@@ -131,8 +144,10 @@ void sendSensor()
  
 }
 
+
 void loop()
 {
+  //Need these three lines to run Blynk stuff to transmit data.
   SerialBLE.poll();
   Blynk.run();
   timer.run();
