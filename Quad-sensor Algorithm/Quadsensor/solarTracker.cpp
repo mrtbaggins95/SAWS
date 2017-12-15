@@ -3,7 +3,7 @@
 #include "solarTracker.h"
 #include <Stepper.h>
 
-solarTracker::solarTracker(int RTC, int baseStepAz, int baseStepAl)
+solarTracker::solarTracker(int baseStepAz, int baseStepAl)
 {
   Stepper AzStepper = Stepper(200, 1, 2, 3, 4);
   Stepper AlStepper = Stepper(200, 5, 6, 7, 8);
@@ -12,7 +12,6 @@ solarTracker::solarTracker(int RTC, int baseStepAz, int baseStepAl)
 #define SensC A2
 #define SensD A3
 
-  _RTC = RTC;
   _baseStepAz = baseStepAz;
   _baseStepAl = baseStepAl;
 }
