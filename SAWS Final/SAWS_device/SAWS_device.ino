@@ -6,13 +6,19 @@
 #include <BlynkSimpleSerialBLE.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BLE_UART.h>
-#include <Adafruit_BME280.h>
 #include <RTClib.h>
 #include "Arduino.h"
 #include "solarTracker.h"
 #include <Stepper.h>
 #include <Wire.h>
+#include "weatherData.h"
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BME280.h>
 #include "Adafruit_VEML6070.h"
+#include <BLEPeripheral.h>
+#include "BLESerial.h"
+#include <SPI.h>
+
 
 #if (ARDUINO >= 100)
  #include "Arduino.h"
@@ -20,10 +26,6 @@
  #include "WProgram.h"
 #endif
 #include "Wire.h"
-
-#include <BLEPeripheral.h>
-#include "BLESerial.h"
-#include <SPI.h>
 
 ///////////////////////////////////////////////////////MISC. INITIALIZATION///////////////////////////////////////////////////////
 //RTC
@@ -45,6 +47,7 @@ char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursd
 //////////////////QUADSENSOR//////////////////
 int globalStepAz = 0;
 int globalStepAl = 0;
+solarTracker quadsensor = solarTracker(globalStepAz,globalStepAl);
 
 void setup() 
 // define all breakouts and objects
@@ -68,9 +71,9 @@ void setup()
     // January 21, 2014 at 3am you would call:
     // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
   }
-
+  
   //////////////////QUADSENSOR//////////////////
-  solarTracker quadsensor = solarTracker(globalStepAz,globalStepAl);
+
   
   
   //////////////////UV INDEX SENSOR//////////////////
@@ -81,8 +84,32 @@ void setup()
 void loop() 
 // code blocks will be sectioned into parent code for break
 {
-  // quadsensor
+  ///////////////////////local variables////////////////////////////////
+  int decision = 0;
+  boolean origin = false;
+  ///////////////////////quadsensor&motion////////////////////////////// //will run every 30 minutes
+  DateTime present = rtc.now();
+  uint8_t min30 = present.minute();
+  if (min30 % 30 == 0)
+  {
+    decision = quadsensor.readSun();
+    
+    if (decision == 1)
+    {
+      globalStepAz = quadsensor.homeSun(origin); //should reset the globalStep to 0
+      globalStepAz = quadsensor.sweepSun(); //writes new globalStep
+      globalStepAz = quadsensor.trackSunAzimuth(globalStepAz); //adjusts for more accurate sun position and thus more accurate globalStep
+      //globalStepAl = quadsensor.trackSunAltitude(globalStepAl);
+    }
+    if (decision == 2)
+    {
+      globalStepAz = quadsensor.trackSunAzimuth(globalStepAz);
+      //globalStepAl = quadsensor.trackSunAltitude(globalStepAl);
+    }
+    
+  }
 
-  // data reading and transmission
+  ////////////////////////////////data reading and transmission////////////////////////////// // will start reading after the first move upon turn on and continue to keep reading until user off.
+  
 
 }

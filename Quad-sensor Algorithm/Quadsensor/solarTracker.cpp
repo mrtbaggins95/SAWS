@@ -7,10 +7,10 @@ solarTracker::solarTracker(int baseStepAz, int baseStepAl)
 {
   Stepper AzStepper = Stepper(200, 1, 2, 3, 4);
   Stepper AlStepper = Stepper(200, 5, 6, 7, 8);
-#define SensA A0
-#define SensB A1
-#define SensC A2
-#define SensD A3
+  #define SensA A0
+  #define SensB A1
+  #define SensC A2
+  #define SensD A3
 
   _baseStepAz = baseStepAz;
   _baseStepAl = baseStepAl;
@@ -96,8 +96,8 @@ int solarTracker::sweepSun() // this function always creates a new baseStepAz
 
   // After finding the index of the max sun, turn to it
   AzStepper.step(positionData[sunMaxIndex] - 180); // use negative complementary amount of steps to turn back to the high Sun position.
-  int baseStepAz = positionData[sunMaxIndex]; // save amount we stepped away from initial home 0 steps. Altitude baseStepAl remains at zero and will be set by trackSunAltitude()
-  return baseStepAz;
+  _baseStepAz = positionData[sunMaxIndex]; // save amount we stepped away from initial home 0 steps. Altitude baseStepAl remains at zero and will be set by trackSunAltitude()
+  return _baseStepAz;
 }
 
 
@@ -129,10 +129,9 @@ boolean solarTracker::pin_ISR(boolean Home)
 
 
 
-int solarTracker::trackSunAzimuth(int baseStepAz)
+int solarTracker::trackSunAzimuth()
 {
   Stepper AzStepper(200, 1, 2, 3, 4);
-  float _baseStepAz = baseStepAz;  //later change this to the step amount obtained from sweepSun();
   unsigned long lastT = 0;
   float AzIerror = 0; // integral error
   float LastAzPerror = 0; // last saved proportional error
@@ -164,11 +163,11 @@ int solarTracker::trackSunAzimuth(int baseStepAz)
     float AzDeltaSteps = (kp * AzPerror + ki * AzIerror + kd * AzDerror) / 8;
 
     //extremity check
-    float AzStepCheck = baseStepAz + AzDeltaSteps;
+    float AzStepCheck = _baseStepAz + AzDeltaSteps;
 
     if (AzStepCheck > 200)
     {
-      AzDeltaSteps = (AzStepCheck - 200) - baseStepAz;
+      AzDeltaSteps = (AzStepCheck - 200) - _baseStepAz;
     }
 
     if (AzStepCheck < 0)
@@ -178,18 +177,17 @@ int solarTracker::trackSunAzimuth(int baseStepAz)
 
     //normal function
     AzStepper.step(AzDeltaSteps);
-    baseStepAz = baseStepAz + AzDeltaSteps;
-    return baseStepAz;
+    _baseStepAz = _baseStepAz + AzDeltaSteps;
+    return _baseStepAz;
     delay(40);
   }
 }
 
 
 
-int solarTracker::trackSunAltitude(int baseStepAl)
+int solarTracker::trackSunAltitude()
 {
   Stepper AlStepper(200, 34, 38, 46, 48 ); // Ain2 Ain1 Bin1 Bin2
-  float _baseStepAl = baseStepAl;  //later change this to the step amount obtained from sweepSun();
   unsigned long lastT = 0;
   float AlIerror = 0;
   float LastAlPerror = 0; // last saved proportional error
@@ -214,7 +212,7 @@ int solarTracker::trackSunAltitude(int baseStepAl)
     float AlPIDOUT = kp * AlPerror + ki * AlIerror + kd * AlDerror;
     LastAlPerror = AlPerror;
     lastT = now;
-    float AlSteps = baseStepAl + (AlPIDOUT) / 8;
+    float AlSteps = _baseStepAl + (AlPIDOUT) / 8;
 
     if (AlSteps > 90 )
     {
@@ -227,7 +225,7 @@ int solarTracker::trackSunAltitude(int baseStepAl)
     }
 
     AlStepper.step(AlSteps);
-    baseStepAl = AlSteps;
+    _baseStepAl = AlSteps;
     delay(40);
   }
 }

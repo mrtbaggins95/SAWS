@@ -11,8 +11,8 @@ class solarTracker
   solarTracker(int baseStepAz, int baseStepAl);
   int readSun();
   int sweepSun();
-  int trackSunAzimuth(int baseStepAz);
-  int trackSunAltitude(int baseStepAl);
+  int trackSunAzimuth();
+  int trackSunAltitude();
   void homeSun();  
   boolean pin_ISR(boolean Home);
   
