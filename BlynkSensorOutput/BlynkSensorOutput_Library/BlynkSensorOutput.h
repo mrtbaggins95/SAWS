@@ -12,7 +12,7 @@
 #include <Adafruit_BME280.h>
 #include "Adafruit_VEML6070.h"
 
-class weatherData
+class BlynkSensorOutput
 {
   public:
   void start();

@@ -1,7 +1,7 @@
 //Source file for BlynkSensorOutput
 
 #include "Arduino.h"
-#include "weatherData.h"
+#include "BlynkSensorOutput.h"
 #include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
@@ -9,7 +9,7 @@
 #include "Adafruit_VEML6070.h"
 
 
-void weatherData::sendBMEData()
+void BlynkSensorOutput::sendBMEData()
 {
   float bmeTemperature = bme.readTemperature();
   float bmePressure = bme.readPressure()/100.0F;
@@ -19,7 +19,7 @@ void weatherData::sendBMEData()
   Blynk.virtualWrite(V3,bmeHumidity);
 }
 
-String weatherData::UVindex_val()
+String BlynkSensorOutput::UVindex_val()
 {
   uint16_t reading = uv.readUV();
   if (reading >= 2055)
@@ -44,13 +44,13 @@ String weatherData::UVindex_val()
   }
 }
 
-void weatherData::sendSensor()
+void BlynkSensorOutput::sendSensor()
 {
   sendBMEData();
   Blynk.virtualWrite(V4,UVindex_val());
  
 }
-void weatherData::start()
+void BlynkSensorOutput::start()
 {
   SerialBLE.setLocalName("Blynk");
   SerialBLE.setDeviceName("Blynk");
