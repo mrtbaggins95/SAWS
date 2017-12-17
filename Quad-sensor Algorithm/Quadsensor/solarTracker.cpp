@@ -1,25 +1,25 @@
-//This is the source file for the sunFunctions Library
+//This is the source file for the solarTracker Library
 #include "Arduino.h"
-#include "sunFunctions.h"
+#include "solarTracker.h"
 #include <Stepper.h>
 
-sunFunctions::sunFunctions(int RTC, int baseStepAz, int baseStepAl)
+solarTracker::solarTracker(int baseStepAz, int baseStepAl)
 {
-  Stepper AzStepper = Stepper(200, 1, 2, 3, 4);
-  Stepper AlStepper = Stepper(200, 5, 6, 7, 8);
-#define SensA A0
-#define SensB A1
-#define SensC A2
-#define SensD A3
+  Stepper AzStepper = Stepper(400, 1, 2, 3, 4);
+  Stepper AlStepper = Stepper(400, 5, 6, 7, 8);
+  #define SensA A0
+  #define SensB A1
+  #define SensC A2
+  #define SensD A3
 
-  _RTC = RTC;
   _baseStepAz = baseStepAz;
   _baseStepAl = baseStepAl;
+  volatile int Home = false;
 }
 
 
 
-int sunFunctions::readSun()
+int solarTracker::readSun()
 {
   // define local variable: int option = 0 by default
   int ValA = analogRead(SensA);
@@ -50,10 +50,10 @@ int sunFunctions::readSun()
 
 
 
-int sunFunctions::sweepSun() // this function always creates a new baseStepAz
+int solarTracker::sweepSun() // this function always creates a new baseStepAz
 {
   Serial.begin(9600);
-  Stepper AzStepper(200, 4, 5, 6, 7);
+  Stepper AzStepper(400, 4, 5, 6, 7);
 
   //variables for loop 1
   int sunData[181];
@@ -97,43 +97,13 @@ int sunFunctions::sweepSun() // this function always creates a new baseStepAz
 
   // After finding the index of the max sun, turn to it
   AzStepper.step(positionData[sunMaxIndex] - 180); // use negative complementary amount of steps to turn back to the high Sun position.
-  int baseStepAz = positionData[sunMaxIndex]; // save amount we stepped away from initial home 0 steps. Altitude baseStepAl remains at zero and will be set by trackSunAltitude()
-  return baseStepAz;
+  _baseStepAz = positionData[sunMaxIndex]; // save amount we stepped away from initial home 0 steps. Altitude baseStepAl remains at zero and will be set by trackSunAltitude()
+  return _baseStepAz;
 }
 
-
-
-void sunFunctions::homeSun()
+int solarTracker::trackSunAzimuth()
 {
-  volatile boolean Home = false;
-#define STBY 8 // Pull this pin low to completely cut off power to the stepper
-#define STEPS 200 // Number of steps per rotation, this is specific to our motor
-#define HomeSwitch 2
-  Stepper stepper(STEPS, 4, 5, 6, 7); // creates a stepper object called stepper, using pins 4-7
-  stepper.setSpeed(100); // sets the speed of the motor in rpm
-  pinMode(STBY, OUTPUT);
-  digitalWrite(STBY, HIGH);
-  pinMode(HomeSwitch, INPUT_PULLUP); //sets the HomeSwitch pin(2) as an input that uses internall pull ups
-  while (Home == false)
-  { //This while loop continue to step the motor, while the swith is open(high)
-    stepper.step(1); // steps the motor once
-  }
-  digitalWrite(STBY, LOW);
-}
-
-boolean sunFunctions::pin_ISR(boolean Home)
-{ // this is the interrupt service routine. Basically the function that happens when interrupt occurs
-  volatile boolean crap = Home;
-  crap = true; // update the home variable to exit the while loop.
-  return crap;
-}
-
-
-
-int sunFunctions::trackSunAzimuth(int baseStepAz)
-{
-  Stepper AzStepper(200, 1, 2, 3, 4);
-  float _baseStepAz = baseStepAz;  //later change this to the step amount obtained from sweepSun();
+  Stepper AzStepper(400, 1, 2, 3, 4);
   unsigned long lastT = 0;
   float AzIerror = 0; // integral error
   float LastAzPerror = 0; // last saved proportional error
@@ -165,32 +135,31 @@ int sunFunctions::trackSunAzimuth(int baseStepAz)
     float AzDeltaSteps = (kp * AzPerror + ki * AzIerror + kd * AzDerror) / 8;
 
     //extremity check
-    float AzStepCheck = baseStepAz + AzDeltaSteps;
+    float AzStepCheck = _baseStepAz + AzDeltaSteps;
 
-    if (AzStepCheck > 200)
+    if (AzStepCheck > 400)
     {
-      AzDeltaSteps = (AzStepCheck - 200) - baseStepAz;
+      AzDeltaSteps = (AzStepCheck - 400) - _baseStepAz;
     }
 
     if (AzStepCheck < 0)
     {
-      AzDeltaSteps = 200 + AzStepCheck;
+      AzDeltaSteps = 400 + AzStepCheck;
     }
 
     //normal function
     AzStepper.step(AzDeltaSteps);
-    baseStepAz = baseStepAz + AzDeltaSteps;
-    return baseStepAz;
+    _baseStepAz = _baseStepAz + AzDeltaSteps;
+    return _baseStepAz;
     delay(40);
   }
 }
 
 
 
-int sunFunctions::trackSunAltitude(int baseStepAl)
+int solarTracker::trackSunAltitude()
 {
-  Stepper AlStepper(200, 34, 38, 46, 48 ); // Ain2 Ain1 Bin1 Bin2
-  float _baseStepAl = baseStepAl;  //later change this to the step amount obtained from sweepSun();
+  Stepper AlStepper(400, 34, 38, 46, 48 ); // Ain2 Ain1 Bin1 Bin2
   unsigned long lastT = 0;
   float AlIerror = 0;
   float LastAlPerror = 0; // last saved proportional error
@@ -215,7 +184,7 @@ int sunFunctions::trackSunAltitude(int baseStepAl)
     float AlPIDOUT = kp * AlPerror + ki * AlIerror + kd * AlDerror;
     LastAlPerror = AlPerror;
     lastT = now;
-    float AlSteps = baseStepAl + (AlPIDOUT) / 8;
+    float AlSteps = _baseStepAl + (AlPIDOUT) / 8;
 
     if (AlSteps > 90 )
     {
@@ -228,7 +197,7 @@ int sunFunctions::trackSunAltitude(int baseStepAl)
     }
 
     AlStepper.step(AlSteps);
-    baseStepAl = AlSteps;
+    _baseStepAl = AlSteps;
     delay(40);
   }
 }

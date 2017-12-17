@@ -1,24 +1,23 @@
-/*
- * dec 9 2017 16:50 this is the correct code that prints to UART on phone * 
- */
 #include <Wire.h>
 #include <SPI.h>
 #include "Adafruit_BLE_UART.h"
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
+#include "Adafruit_VEML6070.h"
 
 // Connect CLK/MISO/MOSI to hardware SPI
 // e.g. On UNO & compatible: CLK = 13, MISO = 12, MOSI = 11
-#define ADAFRUITBLE_REQ 23
-#define ADAFRUITBLE_RDY 18     // This should be an interrupt pin, on Uno thats #2 or #3
-#define ADAFRUITBLE_RST 25
+#define ADAFRUITBLE_REQ 7
+#define ADAFRUITBLE_RDY 2     // This should be an interrupt pin, on Uno thats #2 or #3
+#define ADAFRUITBLE_RST 6
 
 Adafruit_BLE_UART BTLEserial = Adafruit_BLE_UART(ADAFRUITBLE_REQ, ADAFRUITBLE_RDY, ADAFRUITBLE_RST);
+Adafruit_VEML6070 uv = Adafruit_VEML6070();
 
-#define BME_SCK 52
-#define BME_MISO 50
-#define BME_MOSI 51
-#define BME_CS A12
+#define BME_SCK 13
+#define BME_MISO 12
+#define BME_MOSI 11
+#define BME_CS 10
 
 #define SEALEVELPRESSURE_HPA (1013.25)
 
@@ -34,7 +33,8 @@ void setup()
 { 
   Serial.begin(9600);
   while(!Serial); // Leonardo/Micro should wait for serial init
-  Serial.println(F("Adafruit nRF8001 and BME280 test"));
+  Serial.println(F("Adafruit nRF8001 BME280 VEML6070 UV Index test"));
+  uv.begin(VEML6070_1_T);  // pass in the integration time constant
 
 bool status;
     
@@ -87,6 +87,8 @@ void loop()
     laststatus = status;
   }
   printValues();
+  BTLEserial.print("UV index: ");
+  printUVindex();
   delay(delayTime);
   
   if (status == ACI_EVT_CONNECTED) {
@@ -120,7 +122,7 @@ void loop()
       // write the data
       BTLEserial.write(sendbuffer, sendbuffersize);
 
-      delay(delayTime);
+//      delay(delayTime);
     }
   }
 }
@@ -144,5 +146,31 @@ void printValues() {
     BTLEserial.println(" %");
 
     Serial.println();
+    
+    }
+
+String printUVindex() {
+  uint16_t reading = uv.readUV();
+  if (reading >= 2055)
+  {
+    return "Extreme";
+  }
+  else if ( reading >= 1494)
+  {
+    return "Very High";
+  }
+  else if ( reading >= 1121)
+  {
+    return "High";
+  }
+  else if (reading >= 561)
+  {
+    return "Moderate";
+  }
+  else
+  {
+    return "Low";
+  }
 }
+
 

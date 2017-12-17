@@ -13,8 +13,14 @@
 #include <Stepper.h>
 volatile int Home = false; // variable that is modified by the Interrupt, on pin 2. Needs to be global
 
+<<<<<<< HEAD
 void setup() {
   attachInterrupt(digitalPinToInterrupt(3), pin_ISR, LOW); // Defining an active low interrupt on the switch pin 2
+=======
+void setup() 
+{
+  attachInterrupt(digitalPinToInterrupt(2), pin_ISR, LOW); // Defining an active low interrupt on the switch pin 2
+>>>>>>> f5b9fcc4d6d8c153dc82d0088d024339421ace6c
   HomeStepper();
 }
 
