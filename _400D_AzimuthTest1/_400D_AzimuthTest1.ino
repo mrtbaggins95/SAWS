@@ -5,8 +5,8 @@
 // create an instance of the stepper class, specifying
 // the number of steps of the motor and the pins it's
 // attached to
-Stepper stepperB(STEPS, 4, 5, 7, 6); // Ain2 Ain1 Bin1 Bin2
-//Stepper stepperB(STEPS, 34, 38, 46, 48); // Ain2 Ain1 Bin1 Bin2
+//Stepper stepperB(STEPS, 4, 5, 7, 6); // Ain2 Ain1 Bin1 Bin2
+Stepper stepperB(STEPS, 34, 38, 46, 48); // Ain2 Ain1 Bin1 Bin2
 
 
 void setup()
@@ -21,8 +21,8 @@ void setup()
 void loop()
 {
   //stepperA.step(40 * 400);
-  //stepperB.step(40 * 400);
-
+  stepperB.step(40 * 400);
+/*
 
   for (int Speed = 100; Speed < 300; Speed = Speed + 10) {
     stepperB.setSpeed(Speed);
@@ -35,6 +35,7 @@ void loop()
     Serial.println(Speed);
     stepperB.step(800);
   }
+  */
 
 
 

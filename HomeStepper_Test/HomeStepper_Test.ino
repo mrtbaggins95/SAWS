@@ -13,14 +13,13 @@
 #include <Stepper.h>
 volatile int Home = false; // variable that is modified by the Interrupt, on pin 2. Needs to be global
 
-<<<<<<< HEAD
-void setup() {
-  attachInterrupt(digitalPinToInterrupt(3), pin_ISR, LOW); // Defining an active low interrupt on the switch pin 2
-=======
+
+
+
 void setup() 
 {
-  attachInterrupt(digitalPinToInterrupt(2), pin_ISR, LOW); // Defining an active low interrupt on the switch pin 2
->>>>>>> f5b9fcc4d6d8c153dc82d0088d024339421ace6c
+  attachInterrupt(digitalPinToInterrupt(3), pin_ISR, LOW); // Defining an active low interrupt on the switch pin 2
+
   HomeStepper();
 }
 
@@ -33,14 +32,14 @@ void HomeStepper()
 #define HomeSwitch 3
   Stepper stepper(STEPS, 34, 38, 46, 48); // creates a stepper object called stepper, using pins 4-7
   stepper.setSpeed(135); // sets the speed of the motor in rpm
-  pinMode(STBY, OUTPUT);
-  digitalWrite(STBY, HIGH);
+  //pinMode(STBY, OUTPUT);
+  //digitalWrite(STBY, HIGH);
   pinMode(HomeSwitch, INPUT_PULLUP); //sets the HomeSwitch pin(2) as an input that uses internall pull ups
   while (Home == false) 
   { //This while loop continue to step the motor, while the swith is open(high)
     stepper.step(1); // steps the motor once
   }
-  digitalWrite(STBY, LOW);
+ // digitalWrite(STBY, LOW);
 }
 
 void pin_ISR() { // this is the interrupt service routine. Basically the function that happens when interrupt occurs
