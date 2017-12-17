@@ -7,21 +7,21 @@
 
 // Connect CLK/MISO/MOSI to hardware SPI
 // e.g. On UNO & compatible: CLK = 13, MISO = 12, MOSI = 11
-#define ADAFRUITBLE_REQ 7
-#define ADAFRUITBLE_RDY 2     // This should be an interrupt pin, on Uno thats #2 or #3
-#define ADAFRUITBLE_RST 6
+#define ADAFRUITBLE_REQ 23
+#define ADAFRUITBLE_RDY 18    // This should be an interrupt pin, on Uno thats #2 or #3
+#define ADAFRUITBLE_RST 25
 
 Adafruit_BLE_UART BTLEserial = Adafruit_BLE_UART(ADAFRUITBLE_REQ, ADAFRUITBLE_RDY, ADAFRUITBLE_RST);
 Adafruit_VEML6070 uv = Adafruit_VEML6070();
 
-#define BME_SCK 13
-#define BME_MISO 12
-#define BME_MOSI 11
-#define BME_CS 10
-
+#define BME_SCK 52
+#define BME_MISO 51
+#define BME_MOSI 50
+#define BME_CS A12
+Adafruit_BME280 bme(BME_CS); // hardware SPI
 #define SEALEVELPRESSURE_HPA (1013.25)
 
-Adafruit_BME280 bme(BME_CS, BME_MOSI, BME_MISO, BME_SCK); // software SPI
+//Adafruit_BME280 bme(BME_CS, BME_MOSI, BME_MISO, BME_SCK); // software SPI
 
 unsigned long delayTime;
 /**************************************************************************/
@@ -36,22 +36,22 @@ void setup()
   Serial.println(F("Adafruit nRF8001 BME280 VEML6070 UV Index test"));
   uv.begin(VEML6070_1_T);  // pass in the integration time constant
 
-bool status;
-    
-    // default settings
-    status = bme.begin();
-    if (!status) {
-        Serial.println("Could not find a valid BME280 sensor, check wiring!");
-        while (1);
-    }
-    
-    Serial.println("-- Default Test --");
-    delayTime = 100;
-
-    Serial.println();
-  // BTLEserial.setDeviceName("NEWNAME"); /* 7 characters max! */
-
-  BTLEserial.begin();
+//bool status;
+//    
+//    // default settings
+//    status = bme.begin();
+//    if (!status) {
+//        Serial.println("Could not find a valid BME280 sensor, check wiring!");
+//        while (1);
+//    }
+//    
+//    Serial.println("-- Default Test --");
+//    delayTime = 100;
+//
+//    Serial.println();
+//  // BTLEserial.setDeviceName("NEWNAME"); /* 7 characters max! */
+//
+//  BTLEserial.begin();
 }
 
 /**************************************************************************/
@@ -59,7 +59,7 @@ bool status;
     Constantly checks for new events on the nRF8001
 */
 /**************************************************************************/
-aci_evt_opcode_t laststatus = ACI_EVT_DISCONNECTED;
+//aci_evt_opcode_t laststatus = ACI_EVT_DISCONNECTED;
 
 void loop()
 {
@@ -129,21 +129,25 @@ void loop()
 
 
 void printValues() {
-    BTLEserial.print("Temperature = ");
-    BTLEserial.print(bme.readTemperature());
-    BTLEserial.println(" *C");
+    Serial.print("Temperature = ");
+    Serial.print(bme.readTemperature());
+    Serial.println(" *C");
 
-    BTLEserial.print("Pressure = ");
-    BTLEserial.print(bme.readPressure() / 100.0F);
-    BTLEserial.println(" hPa");
+    Serial.print("Pressure = ");
+    Serial.print(bme.readPressure() / 100.0F);
+    Serial.println(" hPa");
 
-    BTLEserial.print("Approx. Altitude = ");
-    BTLEserial.print(bme.readAltitude(SEALEVELPRESSURE_HPA));
-    BTLEserial.println(" m above sea level");
+    Serial.print("Approx. Altitude = ");
+    Serial.print(bme.readAltitude(SEALEVELPRESSURE_HPA));
+    Serial.println(" m above sea level");
 
-    BTLEserial.print("Humidity = ");
-    BTLEserial.print(bme.readHumidity());
-    BTLEserial.println(" %");
+    Serial.print("Humidity = ");
+    Serial.print(bme.readHumidity());
+    Serial.println(" %");
+
+    Serial.print("UV Intensity = ");
+    Serial.print(printUVindex());
+
 
     Serial.println();
     

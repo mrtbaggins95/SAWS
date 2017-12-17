@@ -99,16 +99,16 @@ void setup()
 void sendBMEData()
 {
   //The the bme.readExample() reads a desired measurement
-  int bmeTemperature = bme.readTemperature();
-  int bmePressure = bme.readPressure()/100.0F;
-  int bmeHumidity = bme.readHumidity();
+  float bmeTemperature = bme.readTemperature();
+  float bmePressure = bme.readPressure()/100.0F;
+  float bmeHumidity = bme.readHumidity();
   //This writes the data to a virtual pin. 
   //Virtual Pins in Blynk act similar to regular pins, 
   //by wrtiing data to virtual pins we are able to read data on the app.
   Blynk.virtualWrite(V1,UVindex_val());
   Blynk.virtualWrite(V2,bmeHumidity);
-  Blynk.virtualWrite(V3,bmePressure);
-  Blynk.virtualWrite(V4,bmeTemperature);
+  //Blynk.virtualWrite(V3,bmePressure);
+  //Blynk.virtualWrite(V4,bmeTemperature);
 }
 //The function will return a string based on the values the UV sensor is reading.
 uint16_t UVindex_val()
