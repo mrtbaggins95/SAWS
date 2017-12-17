@@ -30,7 +30,7 @@
 
 //Initialize Blynk Bluetooth interface. You do not BLYNK_DEBUG, but it is there to see if data is transmitting,
 #define BLYNK_PRINT Serial
-#define BLYNK_DEBUG 
+#define BLYNK_DEBUG
 #define BLYNK_USE_DIRECT_CONNECT
 
 //These include files are necessary. The UV include file and the BLESerial include are local, use the Add file method to include the library.
@@ -39,10 +39,14 @@
 #include "BLESerial.h"
 #include <SPI.h>
 #include <Wire.h>
+#include <SD.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
 #include "Adafruit_VEML6070.h"
 
+// define pin and global for the SPI SD Card Connection
+#define SD_CS 53
+String filename = "";
 
 
 //Auth token to connect to the mobile app
@@ -69,7 +73,7 @@ BLESerial SerialBLE(BLE_REQ, BLE_RDY, BLE_RST);
 Adafruit_BME280 bme(BME_CS); // hardware SPI
 //Adafruit_BME280 bme(BME_CS, BME_MOSI, BME_MISO, BME_SCK); // software SPI
 
-//Intitialize UV 
+//Intitialize UV
 Adafruit_VEML6070 uv = Adafruit_VEML6070();
 
 //Initialize Blynk timer to poll data at a defined frequency based on the app
@@ -78,21 +82,47 @@ void setup()
 {
   // Debug console
   Serial.begin(9600);
+  ////////////////////////////////////////////////////////////////////////////////////
+  //SD CARD and FILE INITIALIZATION
+  while (!Serial) { // do nothing while there is no serial activity.
+  }
+  Serial.println("Initializing the SD card");
+  if (!SD.begin(chipSelect)) {
+    Serial.println(" Failed to connect to card, or card not present");
+    //while(1){}
+  }
+  else if (SD.begin(chipSelect)) {
+    Serial.println("Card initialized");
+  }
+  int n = 1;
+  while (1) {
+    filename = "Data_";
+    filename += String(n);
+    filename += ".txt";
+    if (!SD.exists(filename)) { // File does not exist, create a new file name. Evenutally this file will be created
+      break;
+    }
+    n = n + 1;
+  }
 
-  //Setup the BLE to advertise as "Blynk"
-  SerialBLE.setLocalName("Blynk");
-  SerialBLE.setDeviceName("Blynk");
-  SerialBLE.setAppearance(0x0080);
-  SerialBLE.begin();
+  /////////////////////////////////////////////////////////////////////////////////////
 
-  //Intialize Blynk,UV,and BME to start data transfer
-  Blynk.begin(SerialBLE, auth);
-  uv.begin(VEML6070_1_T);
-  bme.begin();
-  //Sets timer interval. sendSensor refers to a function where UV data and BME data are sent
-  timer.setInterval(1000L, sendSensor);
+}
 
-  Serial.println("Waiting for connections...");
+//Setup the BLE to advertise as "Blynk"
+SerialBLE.setLocalName("Blynk");
+SerialBLE.setDeviceName("Blynk");
+SerialBLE.setAppearance(0x0080);
+SerialBLE.begin();
+
+//Intialize Blynk,UV,and BME to start data transfer
+Blynk.begin(SerialBLE, auth);
+uv.begin(VEML6070_1_T);
+bme.begin();
+//Sets timer interval. sendSensor refers to a function where UV data and BME data are sent
+timer.setInterval(1000L, sendSensor);
+
+Serial.println("Waiting for connections...");
 }
 
 //Will send Temperature, Pressure, and Humidity Data
@@ -100,13 +130,28 @@ void sendBMEData()
 {
   //The the bme.readExample() reads a desired measurement
   float bmeTemperature = bme.readTemperature();
-  float bmePressure = bme.readPressure()/100.0F;
+  float bmePressure = bme.readPressure() / 100.0F;
   float bmeHumidity = bme.readHumidity();
-  //This writes the data to a virtual pin. 
-  //Virtual Pins in Blynk act similar to regular pins, 
+  uint16_t vemlVal =  UVindex_val();
+  ///////////////////////////////////////////////////////////////////////////////////
+  //WRITE DATA TO SD CARD
+  String DataString = String(bmeTemperature) + ", " + String(bmePressure) + ", " + String(bmeHumidity) + ", " +String(vemlVal) + ", ";  
+  File newFile = SD.open(filename, FILE_WRITE);
+  if (newFile) {
+      newFile.println(DataString);
+      newFile.close();
+      //Serial.println(DataString);
+    }
+    else{
+      Serial.println("Error Writing Data string to SD");
+    }
+
+  //////////////////////////////////////////////////////////////////////////////////
+  //This writes the data to a virtual pin.
+  //Virtual Pins in Blynk act similar to regular pins,
   //by wrtiing data to virtual pins we are able to read data on the app.
-  Blynk.virtualWrite(V1,UVindex_val());
-  Blynk.virtualWrite(V2,bmeHumidity);
+  Blynk.virtualWrite(V1,);
+  Blynk.virtualWrite(V2, bmeHumidity);
   //Blynk.virtualWrite(V3,bmePressure);
   //Blynk.virtualWrite(V4,bmeTemperature);
 }
@@ -116,40 +161,40 @@ uint16_t UVindex_val()
   uint16_t reading = uv.readUV();
   //String output;
   /*
-  if (reading >= 2055)
-  {
+    if (reading >= 2055)
+    {
     output =  "Extreme";
     return output;
-  }
-  else if ( reading >= 1494)
-  {
+    }
+    else if ( reading >= 1494)
+    {
     output = "Very High";
     return output;
-  }
-  else if ( reading >= 1121)
-  {
+    }
+    else if ( reading >= 1121)
+    {
     output = "High";
     return output;
-  }
-  else if (reading >= 561)
-  {
+    }
+    else if (reading >= 561)
+    {
     output = "Moderate";
     return output;
-  }
-  else
-  {
+    }
+    else
+    {
     output = "Low";
     return output;
-  }
+    }
   */
-  return reading; 
+  return reading;
 }
 //Sends Sensor data
 void sendSensor()
 {
   sendBMEData();
-  Blynk.virtualWrite(V4,UVindex_val());
- 
+  Blynk.virtualWrite(V4, UVindex_val());
+
 }
 
 
@@ -159,7 +204,7 @@ void loop()
   SerialBLE.poll();
   Blynk.run();
   timer.run();
-  
-  
+
+
 }
 
