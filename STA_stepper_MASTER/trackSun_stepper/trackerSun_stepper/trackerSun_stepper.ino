@@ -1,11 +1,10 @@
 #include <Stepper.h>
-Stepper AzStepper = Stepper(200,1,2);
-Stepper AlStepper = Stepper(200,3,4);
+Stepper AzStepper(STEPS, 1,2,3,4);
+//Stepper AzStepper(STEPS, 34, 38, 46, 48);
 #define SensA A0
 #define SensA A1
 #define SensA A2
 #define SensA A3
-
 
 void setup() 
 {

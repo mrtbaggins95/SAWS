@@ -14,7 +14,7 @@
 volatile int Home = false; // variable that is modified by the Interrupt, on pin 2. Needs to be global
 
 void setup() {
-  attachInterrupt(digitalPinToInterrupt(2), pin_ISR, LOW); // Defining an active low interrupt on the switch pin 2
+  attachInterrupt(digitalPinToInterrupt(3), pin_ISR, LOW); // Defining an active low interrupt on the switch pin 2
   HomeStepper();
 }
 
@@ -23,10 +23,10 @@ void loop() {}
 void HomeStepper() 
 {
 #define STBY 8 // Pull this pin low to completely cut off power to the stepper
-#define STEPS 200 // Number of steps per rotation, this is specific to our motor
-#define HomeSwitch 2
-  Stepper stepper(STEPS, 4, 5, 6, 7); // creates a stepper object called stepper, using pins 4-7
-  stepper.setSpeed(100); // sets the speed of the motor in rpm
+#define STEPS 400 // Number of steps per rotation, this is specific to our motor
+#define HomeSwitch 3
+  Stepper stepper(STEPS, 34, 38, 46, 48); // creates a stepper object called stepper, using pins 4-7
+  stepper.setSpeed(135); // sets the speed of the motor in rpm
   pinMode(STBY, OUTPUT);
   digitalWrite(STBY, HIGH);
   pinMode(HomeSwitch, INPUT_PULLUP); //sets the HomeSwitch pin(2) as an input that uses internall pull ups
