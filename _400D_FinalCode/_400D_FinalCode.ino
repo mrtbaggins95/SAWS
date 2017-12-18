@@ -148,6 +148,7 @@ void setup()
   timer.setInterval(1000L, BlynkSend); // sendData is the only function that accesses the weather and time data. This function is called by a blynk timer every minute
   Serial.println("Waiting for connections...");
 }
+
 void loop()
 {
   DateTime now = rtc.now();
@@ -174,11 +175,6 @@ void loop()
   SerialBLE.poll(); // dont know what this does
   Blynk.run(); // dont know what this does
   timer.run(); // dont know what this does
-
-
-
-
-
 
 }
 
