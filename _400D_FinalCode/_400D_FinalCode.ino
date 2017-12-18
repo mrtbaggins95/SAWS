@@ -50,9 +50,11 @@ String filename = "";
 #include "RTClib.h"
 RTC_DS1307 rtc;
 //Auth token to connect to the mobile app
-//char auth[] = "8963a3ec5af844e5b97898f6a0e01916";// Jordan's Ipad
+char auth[] = "8963a3ec5af844e5b97898f6a0e01916";// Jordan's Ipad
 //char auth[] = "050355e469a949ff8c29f7aeff0d4e2e"; // Sakib's Phone
-char auth[] = "b509465b69104157938622e74725d7da"; // James' Phone
+//char auth[] = "b509465b69104157938622e74725d7da"; // James' Phone
+//char auth[] = "cc56e7bc08e046d4bc44e3c1906aa103"; // Garrett's Phone 
+
 //define pins for BLE for Blynk
 #define BLE_REQ   23
 #define BLE_RDY   18
@@ -83,11 +85,11 @@ Weather_t Weather = {0, 0, 0, 0};
 
 struct Time_t {
   uint16_t Year;
-  uint8_t Month;
-  uint8_t Day;
-  uint8_t Hour;
-  uint8_t Minute;
-  uint8_t Second;
+  uint16_t Month;
+  uint16_t Day;
+  uint16_t Hour;
+  uint16_t Minute;
+  uint16_t Second;
 };
 Time_t Time = {0, 0, 0, 0, 0, 0};
 
@@ -153,23 +155,36 @@ void loop()
 {
   DateTime now = rtc.now();
   uint8_t Second = now.second();
-  uint8_t Minute = now.minute();
+  //uint8_t Minute = now.minute();
+  uint8_t Second30 = now.second();
+  static int lastSecond = 0;
+  static int lastMinute = 0;
+  static boolean isFirstRead = true;
+  static boolean isFirstMove = true;
 
-  if (Second % 59 == 0 ) { // Every minute read sensors and save the data
-    bool stateA = LOW;
-    if (stateA != HIGH) {
-      stateA == HIGH;
+  if(Second != lastSecond)
+  {
+    isFirstRead = true;
+  }
+
+  if (Second % 59 == 0 && isFirstRead == true) 
+  { // Every minute read sensors and save the data
       GetData();
       SaveData();
-
-    }
+      isFirstRead = false;
+      lastSecond = Second;
   }
-  if ( Minute % 2 == 0) { // Every 30 minutes call the motor control function
-    bool stateB = LOW;
-    if (stateB != HIGH) {
-      stateB == HIGH;
+
+  if (Second30 != lastMinute) //replace Second30 with Minute
+  {
+    isFirstMove = true; 
+  }
+  
+  if ( Second30 % 30 == 0 && isFirstMove == true) //replace Second30 with Minute
+  { // Every 30 minutes call the motor control function
       trackSun();
-    }
+      isFirstMove = false;
+      lastMinute = Second30;
   }
   //Need these three lines to run Blynk stuff to transmit data.
   SerialBLE.poll(); // dont know what this does
