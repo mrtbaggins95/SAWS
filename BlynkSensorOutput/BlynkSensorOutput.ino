@@ -87,11 +87,11 @@ void setup()
   while (!Serial) { // do nothing while there is no serial activity.
   }
   Serial.println("Initializing the SD card");
-  if (!SD.begin(chipSelect)) {
+  if (!SD.begin(SD_CS)) {
     Serial.println(" Failed to connect to card, or card not present");
     //while(1){}
   }
-  else if (SD.begin(chipSelect)) {
+  else if (SD.begin(SD_CS)) {
     Serial.println("Card initialized");
   }
   int n = 1;
@@ -106,9 +106,6 @@ void setup()
   }
 
   /////////////////////////////////////////////////////////////////////////////////////
-
-}
-
 //Setup the BLE to advertise as "Blynk"
 SerialBLE.setLocalName("Blynk");
 SerialBLE.setDeviceName("Blynk");
@@ -125,6 +122,9 @@ timer.setInterval(1000L, sendSensor);
 Serial.println("Waiting for connections...");
 }
 
+
+
+
 //Will send Temperature, Pressure, and Humidity Data
 void sendBMEData()
 {
@@ -133,7 +133,16 @@ void sendBMEData()
   float bmePressure = bme.readPressure() / 100.0F;
   float bmeHumidity = bme.readHumidity();
   uint16_t vemlVal =  UVindex_val();
-  ///////////////////////////////////////////////////////////////////////////////////
+
+  //This writes the data to a virtual pin.
+  //Virtual Pins in Blynk act similar to regular pins,
+  //by wrtiing data to virtual pins we are able to read data on the app.
+  Blynk.virtualWrite(V1,vemlVal);
+  Blynk.virtualWrite(V2, bmeHumidity);
+  //Blynk.virtualWrite(V3,bmePressure);
+  //Blynk.virtualWrite(V4,bmeTemperature);
+
+      ///////////////////////////////////////////////////////////////////////////////////
   //WRITE DATA TO SD CARD
   String DataString = String(bmeTemperature) + ", " + String(bmePressure) + ", " + String(bmeHumidity) + ", " +String(vemlVal) + ", ";  
   File newFile = SD.open(filename, FILE_WRITE);
@@ -147,13 +156,6 @@ void sendBMEData()
     }
 
   //////////////////////////////////////////////////////////////////////////////////
-  //This writes the data to a virtual pin.
-  //Virtual Pins in Blynk act similar to regular pins,
-  //by wrtiing data to virtual pins we are able to read data on the app.
-  Blynk.virtualWrite(V1,);
-  Blynk.virtualWrite(V2, bmeHumidity);
-  //Blynk.virtualWrite(V3,bmePressure);
-  //Blynk.virtualWrite(V4,bmeTemperature);
 }
 //The function will return a string based on the values the UV sensor is reading.
 uint16_t UVindex_val()
@@ -204,6 +206,7 @@ void loop()
   SerialBLE.poll();
   Blynk.run();
   timer.run();
+
 
 
 }
