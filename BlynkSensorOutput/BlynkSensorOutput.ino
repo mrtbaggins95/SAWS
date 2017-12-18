@@ -47,35 +47,28 @@
 // define pin and global for the SPI SD Card Connection
 #define SD_CS 53
 String filename = "";
-
-
+//  Stuff for the Real time clock
+#include "RTClib.h"
+RTC_DS1307 rtc;
 //Auth token to connect to the mobile app
 char auth[] = "8963a3ec5af844e5b97898f6a0e01916";//ipad blynk
-
-
 //define pins for BLE for Blynk
 #define BLE_REQ   23
 #define BLE_RDY   18
 #define BLE_RST   25
-
-
 // define Pressure constant
 #define SEALEVELPRESSURE_HPA (1013.25)
-
 // create ble serial instance, see pinouts above, comes from the BLESerial library
 BLESerial SerialBLE(BLE_REQ, BLE_RDY, BLE_RST);
-
 //Define BME pins using Hardware SPI
 #define BME_SCK 52
 #define BME_MISO 50
 #define BME_MOSI 51
 #define BME_CS A12
 Adafruit_BME280 bme(BME_CS); // hardware SPI
-//Adafruit_BME280 bme(BME_CS, BME_MOSI, BME_MISO, BME_SCK); // software SPI
-
+//Adafruit_BME280 bme(BME_CS, BME_MOSI, BME_MISO, BME_SCK); // software SP
 //Intitialize UV
 Adafruit_VEML6070 uv = Adafruit_VEML6070();
-
 //Initialize Blynk timer to poll data at a defined frequency based on the app
 BlynkTimer timer;
 void setup()
@@ -83,9 +76,23 @@ void setup()
   // Debug console
   Serial.begin(9600);
   ////////////////////////////////////////////////////////////////////////////////////
-  //SD CARD and FILE INITIALIZATION
-  while (!Serial) { // do nothing while there is no serial activity.
+  //RTC INITIALIZATION 
+  if (! rtc.begin()) {
+    Serial.println("Couldn't find RTC");
+    //while (1);
   }
+  if (! rtc.isrunning()) {
+    Serial.println("RTC is NOT running!");
+    // following line sets the RTC to the date & time this sketch was compiled
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    // This line sets the RTC with an explicit date & time, for example to set
+    // January 21, 2014 at 3am you would call:
+    // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////
+  //SD CARD and FILE INITIALIZATION
+
   Serial.println("Initializing the SD card");
   if (!SD.begin(SD_CS)) {
     Serial.println(" Failed to connect to card, or card not present");
@@ -106,27 +113,26 @@ void setup()
   }
 
   /////////////////////////////////////////////////////////////////////////////////////
-//Setup the BLE to advertise as "Blynk"
-SerialBLE.setLocalName("Blynk");
-SerialBLE.setDeviceName("Blynk");
-SerialBLE.setAppearance(0x0080);
-SerialBLE.begin();
+  //Setup the BLE to advertise as "Blynk"
+  SerialBLE.setLocalName("Blynk");
+  SerialBLE.setDeviceName("Blynk");
+  SerialBLE.setAppearance(0x0080);
+  SerialBLE.begin();
 
-//Intialize Blynk,UV,and BME to start data transfer
-Blynk.begin(SerialBLE, auth);
-uv.begin(VEML6070_1_T);
-bme.begin();
-//Sets timer interval. sendSensor refers to a function where UV data and BME data are sent
-timer.setInterval(1000L, sendSensor);
-
-Serial.println("Waiting for connections...");
+  //Intialize Blynk,UV,and BME to start data transfer
+  Blynk.begin(SerialBLE, auth);
+  uv.begin(VEML6070_1_T);
+  bme.begin();
+  //Sets timer interval. sendSensor refers to a function where UV data and BME data are sent
+  timer.setInterval(1000L, sendData);
+  Serial.println("Waiting for connections...");
 }
 
 
 
 
 //Will send Temperature, Pressure, and Humidity Data
-void sendBMEData()
+void sendData()
 {
   //The the bme.readExample() reads a desired measurement
   float bmeTemperature = bme.readTemperature();
@@ -137,23 +143,32 @@ void sendBMEData()
   //This writes the data to a virtual pin.
   //Virtual Pins in Blynk act similar to regular pins,
   //by wrtiing data to virtual pins we are able to read data on the app.
-  Blynk.virtualWrite(V1,vemlVal);
+  Blynk.virtualWrite(V1, vemlVal);
   Blynk.virtualWrite(V2, bmeHumidity);
   //Blynk.virtualWrite(V3,bmePressure);
   //Blynk.virtualWrite(V4,bmeTemperature);
-
-      ///////////////////////////////////////////////////////////////////////////////////
-  //WRITE DATA TO SD CARD
-  String DataString = String(bmeTemperature) + ", " + String(bmePressure) + ", " + String(bmeHumidity) + ", " +String(vemlVal) + ", ";  
+  ////////////////////////////////////////////////////////////////////////////////////
+  //GET TIME DATA TO 
+  DateTime now = rtc.now();
+  uint8_t Year = now.year();
+  uint8_t Month = now.month();
+  uint8_t Day = now.day();
+  uint8_t Hour = now.hour();
+  uint8_t Minute = now.minute();
+  uint8_t Second = now.second();
+  ///////////////////////////////////////////////////////////////////////////////////
+  //WRITE DATA TO SD CARD  
+  
+  String DataString = String(Year) + ", " + String(Month) + ", " + String(Day) + ", " + String(Hour) + ", " + String(Minute) + ", " + String(Second) + ", " + String(bmeTemperature) + ", " + String(bmePressure) + ", " + String(bmeHumidity) + ", " + String(vemlVal) + ", ";
   File newFile = SD.open(filename, FILE_WRITE);
   if (newFile) {
-      newFile.println(DataString);
-      newFile.close();
-      //Serial.println(DataString);
-    }
-    else{
-      Serial.println("Error Writing Data string to SD");
-    }
+    newFile.println(DataString);
+    newFile.close();
+    //Serial.println(DataString);
+  }
+  else {
+    Serial.println("Error Writing Data string to SD");
+  }
 
   //////////////////////////////////////////////////////////////////////////////////
 }
@@ -192,12 +207,7 @@ uint16_t UVindex_val()
   return reading;
 }
 //Sends Sensor data
-void sendSensor()
-{
-  sendBMEData();
-  Blynk.virtualWrite(V4, UVindex_val());
 
-}
 
 
 void loop()

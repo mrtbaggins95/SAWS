@@ -39,12 +39,9 @@ void trackSun()
   digitalWrite(Stby, HIGH);
 
   while (abs(AzPerror) > 24 )
-  {
-
-    //timestamp
-    unsigned long now = millis(); // current time
-    float Tchange = double(now - lastT);  // time since last time through loop
-
+  {    
+    unsigned long CurrentT = millis(); // current time
+    float Tchange = double(CurrentT - lastT);  // time since last time through loop
     //PID formula, determine a number of steps to adjust
     //AzPerror = 0 - (LeftAvg - RightAvg)
     Serial.print(AzPerror);
@@ -52,7 +49,7 @@ void trackSun()
     AzIerror = (AzPerror) + AzIerror;
     float AzDerror = (AzPerror - LastAzPerror) / Tchange;
     LastAzPerror = AzPerror;
-    lastT = now;
+    lastT = CurrentT;
     int16_t AzDeltaSteps =  (kp * AzPerror + ki * AzIerror + kd * AzDerror);
     //extremity check
     //int AzStepCheck = baseStep + AzDeltaSteps;
@@ -79,7 +76,6 @@ void trackSun()
     LeftAvg = 0.5 * (analogRead(SensB) + analogRead(SensC));
     RightAvg = 0.5 * (analogRead(SensA) + analogRead(SensD));
     AzPerror = 0 - (LeftAvg - RightAvg);
-
   }
   digitalWrite(Stby, LOW);
 }
